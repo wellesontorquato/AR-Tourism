@@ -82,3 +82,7 @@ export function getAdminCredentials() {
     pass: process.env.ADMIN_PASS || "admin",
   };
 }
+
+export function isAdminAuthedServer() {
+  return Boolean(getAdminSession());
+}
