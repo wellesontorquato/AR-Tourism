@@ -201,6 +201,16 @@ async function main() {
         imageUrl: null,
         arUrl: null,
       },
+      {
+        name: "Casas Jardim - Centro",
+        description: "Casa de vendas de tintas em Maceió",
+        category: "Comércio",
+        address: "Centro de Maceió - AL",
+        lat: -9.662800,
+        lng: -35.706000,
+        imageUrl: null,
+        arUrl: null,
+      },
 
       // =========================
       // CASAS / CULTURA (citados em listas de centros culturais)
