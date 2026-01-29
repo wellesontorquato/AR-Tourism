@@ -96,7 +96,7 @@ async function main() {
         description: "Sede histórica do governo estadual, símbolo político da cidade.",
         category: "História",
         address: "Centro, Maceió - AL",
-        lat: -9.667139, // Mesma localização física do Museu (o museu fica no palácio)
+        lat: -9.667139,
         lng: -35.737972,
         imageUrl: null,
         arUrl: null,
@@ -120,7 +120,7 @@ async function main() {
         description: "Região histórica com armazéns, casario, museus e espaços culturais.",
         category: "História",
         address: "Jaraguá, Maceió - AL",
-        lat: -9.672500, // Ponto central aproximado do bairro
+        lat: -9.672500,
         lng: -35.722200,
         imageUrl: null,
         arUrl: null,
@@ -140,8 +140,6 @@ async function main() {
         description: "Acervo de arte sacra em espaço cultural tradicional de Maceió.",
         category: "História",
         address: "Jaraguá, Maceió - AL",
-        // Nota: O Museu de Arte Sacra principal fica no Centro, mas a Fundação tem o "Armazém Pierre Chalita" no Jaraguá.
-        // Considerando o endereço "Jaraguá" no seu objeto, usei as coordenadas da unidade do Jaraguá (Praça Manoel Duarte).
         lat: -9.671000,
         lng: -35.724500,
         imageUrl: null,
@@ -169,7 +167,7 @@ async function main() {
       },
 
       // =========================
-      // MEMORIAIS / MARCOS URBANOS (muito citados)
+      // MEMORIAIS / MARCOS URBANOS
       // =========================
       {
         name: "Memorial Teotônio Vilela",
@@ -201,19 +199,9 @@ async function main() {
         imageUrl: null,
         arUrl: null,
       },
-      {
-        name: "Casas Jardim - Centro",
-        description: "Casa de vendas de tintas em Maceió",
-        category: "Comércio",
-        address: "Centro de Maceió - AL",
-        lat: -9.666117572484664,
-        lng: -35.738850971071734,
-        imageUrl: null,
-        arUrl: null,
-      },
 
       // =========================
-      // CASAS / CULTURA (citados em listas de centros culturais)
+      // CASAS / CULTURA
       // =========================
       {
         name: "Casa Jorge de Lima",
@@ -222,6 +210,20 @@ async function main() {
         address: "Centro, Maceió - AL",
         lat: -9.668778,
         lng: -35.733526,
+        imageUrl: null,
+        arUrl: null,
+      },
+
+      // =========================
+      // ITEM ADICIONAL DE TESTE
+      // =========================
+      {
+        name: "Casas Jardim (Matriz)",
+        description: "Item de teste adicionado no Centro.",
+        category: "Teste",
+        address: "Rua Barão de Penedo, 153 - Centro, Maceió - AL",
+        lat: -9.666126,
+        lng: -35.738850,
         imageUrl: null,
         arUrl: null,
       },
