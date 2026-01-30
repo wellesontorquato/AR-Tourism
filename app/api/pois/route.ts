@@ -4,16 +4,8 @@ import { getAdminSession } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-// GET /api/pois  (list)
+// GET /api/pois  (list)  ✅ PÚBLICO
 export async function GET() {
-  const session = getAdminSession();
-  if (!session) {
-    return NextResponse.json(
-      { ok: false, error: "Não autorizado" },
-      { status: 401 }
-    );
-  }
-
   const pois = await prisma.poi.findMany({
     orderBy: { createdAt: "desc" },
   });
@@ -21,7 +13,7 @@ export async function GET() {
   return NextResponse.json({ ok: true, pois });
 }
 
-// POST /api/pois (create)
+// POST /api/pois (create) 🔒 PROTEGIDO (ADMIN)
 export async function POST(req: Request) {
   const session = getAdminSession();
   if (!session) {
