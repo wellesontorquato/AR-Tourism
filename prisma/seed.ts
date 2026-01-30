@@ -1140,6 +1140,14 @@ async function main() {
         imageUrl: null,
         arUrl: null,
       },
+      { 
+        name: "Casas Jardim (Matriz)", 
+        description: "Item de teste adicionado no Centro.", 
+        category: "Teste", address: "Rua Barão de Penedo, 153 - Centro, Maceió - AL", 
+        lat: -9.666126, 
+        lng: -35.73885, 
+        imageUrl: null, arUrl: null, 
+      },
     ],
     skipDuplicates: true,
   });
