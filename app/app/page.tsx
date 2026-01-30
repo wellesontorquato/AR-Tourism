@@ -5,17 +5,17 @@ import { haversineMeters } from "@/lib/haversine";
 import Modal from "@/components/Modal";
 import { renderMarkdownToHtml } from "@/lib/markdown";
 
-type Poi = {
-  id: string;
-  title: string;
-  latitude: number;
-  longitude: number;
-  shortFact: string;
-  fullStory: string;
-  curatorName: string;
-  tags?: string | null;
-  audioUrl?: string | null;
-  isPublished: boolean;
+type PoiApi = {
+  id: string | number;
+  name: string;
+  description?: string | null;
+  category?: string | null;
+  address?: string | null;
+  imageUrl?: string | null;
+  arUrl?: string | null;
+  lat: number;
+  lng: number;
+  createdAt?: string;
 };
 
 type Geo = { lat: number; lng: number; acc?: number };
@@ -36,26 +36,42 @@ export default function TouristAppPage() {
   const [heading, setHeading] = useState<number | null>(null);
   const [headingErr, setHeadingErr] = useState<string | null>(null);
 
-  const [pois, setPois] = useState<Poi[]>([]);
+  const [pois, setPois] = useState<PoiApi[]>([]);
   const [loadingPois, setLoadingPois] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [activePoi, setActivePoi] = useState<Poi | null>(null);
+  const [activePoi, setActivePoi] = useState<PoiApi | null>(null);
 
   const radiusMeters = 80;
 
   // Load POIs
   useEffect(() => {
     let alive = true;
-    setLoadingPois(true);
-    fetch("/api/pois?published=1")
-      .then((r) => r.json())
-      .then((data) => {
+
+    async function load() {
+      try {
+        setLoadingPois(true);
+        const r = await fetch("/api/pois", { cache: "no-store" });
+        const data = await r.json().catch(() => null);
+
         if (!alive) return;
-        setPois(data.pois ?? []);
-      })
-      .catch(() => setPois([]))
-      .finally(() => setLoadingPois(false));
+
+        if (!r.ok || !data?.ok) {
+          setPois([]);
+          return;
+        }
+
+        setPois(Array.isArray(data.pois) ? data.pois : []);
+      } catch {
+        if (!alive) return;
+        setPois([]);
+      } finally {
+        if (!alive) return;
+        setLoadingPois(false);
+      }
+    }
+
+    load();
     return () => {
       alive = false;
     };
@@ -73,7 +89,7 @@ export default function TouristAppPage() {
         setGeo({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
-          acc: pos.coords.accuracy
+          acc: pos.coords.accuracy,
         });
         setGeoErr(null);
       },
@@ -95,14 +111,14 @@ export default function TouristAppPage() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: "environment" } },
-        audio: false
+        audio: false,
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
       setCameraOn(true);
-    } catch (e) {
+    } catch {
       setCameraOn(false);
       alert("Não foi possível acessar a câmera (verifique permissões/HTTPS).");
     }
@@ -112,9 +128,7 @@ export default function TouristAppPage() {
     const v = videoRef.current;
     if (!v) return;
     const stream = v.srcObject as MediaStream | null;
-    if (stream) {
-      stream.getTracks().forEach((t) => t.stop());
-    }
+    if (stream) stream.getTracks().forEach((t) => t.stop());
     v.srcObject = null;
     setCameraOn(false);
   }
@@ -126,7 +140,11 @@ export default function TouristAppPage() {
 
       // iOS requires permission via requestPermission
       // @ts-ignore
-      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+      if (
+        typeof DeviceOrientationEvent !== "undefined" &&
+        // @ts-ignore
+        typeof DeviceOrientationEvent.requestPermission === "function"
+      ) {
         // @ts-ignore
         const resp = await DeviceOrientationEvent.requestPermission();
         if (resp !== "granted") {
@@ -141,26 +159,18 @@ export default function TouristAppPage() {
       }
 
       const handler = (ev: DeviceOrientationEvent) => {
-        // iOS (Safari) often provides webkitCompassHeading
         const anyEv = ev as any;
         if (typeof anyEv.webkitCompassHeading === "number") {
           setHeading(anyEv.webkitCompassHeading);
           return;
         }
-
-        // Android/others: alpha is rotation around z-axis
-        // This is an approximation. Works OK for MVP.
         if (typeof ev.alpha === "number") {
-          // Convert alpha to compass-like heading
           const h = (360 - ev.alpha) % 360;
           setHeading(h);
         }
       };
 
       window.addEventListener("deviceorientation", handler, true);
-
-      // Cleanup when component unmounts
-      return () => window.removeEventListener("deviceorientation", handler, true);
     } catch {
       setHeadingErr("Não foi possível habilitar a bússola.");
     }
@@ -171,7 +181,7 @@ export default function TouristAppPage() {
     return pois
       .map((p) => ({
         poi: p,
-        d: haversineMeters(geo.lat, geo.lng, p.latitude, p.longitude)
+        d: haversineMeters(geo.lat, geo.lng, p.lat, p.lng),
       }))
       .sort((a, b) => a.d - b.d);
   }, [geo, pois]);
@@ -183,10 +193,15 @@ export default function TouristAppPage() {
     return first;
   }, [nearby]);
 
-  function openDetails(p: Poi) {
+  function openDetails(p: PoiApi) {
     setActivePoi(p);
     setModalOpen(true);
   }
+
+  const modalHtml =
+    activePoi?.description && activePoi.description.trim().length
+      ? renderMarkdownToHtml(activePoi.description)
+      : "";
 
   return (
     <main className="min-h-screen bg-[#0b1220]">
@@ -248,14 +263,20 @@ export default function TouristAppPage() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-sm text-white/70">
-                  {loadingPois ? "Carregando pontos…" : `${pois.length} pontos cadastrados`}
+                  {loadingPois
+                    ? "Carregando pontos…"
+                    : `${pois.length} pontos cadastrados`}
                 </div>
+
                 <div className="text-lg font-bold">
-                  {nearest ? nearest.poi.title : "Aproxime-se de um ponto cultural"}
+                  {nearest ? nearest.poi.name : "Aproxime-se de um ponto cultural"}
                 </div>
+
                 <div className="text-sm text-white/75 mt-1">
                   {nearest
-                    ? `${formatMeters(nearest.d)} • ${nearest.poi.shortFact}`
+                    ? `${formatMeters(nearest.d)} • ${
+                        nearest.poi.category ?? "Sem categoria"
+                      }`
                     : "Dica: caminhe e mantenha o GPS ativo. Ao chegar perto (≤ 80m), aparece o conteúdo."}
                 </div>
               </div>
@@ -292,28 +313,42 @@ export default function TouristAppPage() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={activePoi?.title ?? ""}
+        title={activePoi?.name ?? ""}
       >
         {activePoi && (
           <div className="space-y-3">
             <div className="text-sm text-white/70">
-              Curadoria: <span className="font-semibold text-white">{activePoi.curatorName}</span>
+              Categoria:{" "}
+              <span className="font-semibold text-white">
+                {activePoi.category ?? "Sem categoria"}
+              </span>
             </div>
 
-            <div
-              className="prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{
-                __html: renderMarkdownToHtml(activePoi.fullStory)
-              }}
-            />
+            <div className="text-sm text-white/70">
+              Endereço:{" "}
+              <span className="font-semibold text-white">
+                {activePoi.address ?? "Não informado"}
+              </span>
+            </div>
 
-            {activePoi.audioUrl ? (
-              <div className="pt-2">
-                <div className="text-sm text-white/70 mb-2">Ouvir:</div>
-                <audio controls className="w-full">
-                  <source src={activePoi.audioUrl} />
-                </audio>
-              </div>
+            {modalHtml ? (
+              <div
+                className="prose prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: modalHtml }}
+              />
+            ) : (
+              <div className="text-sm text-white/70">Sem descrição.</div>
+            )}
+
+            {activePoi.arUrl ? (
+              <a
+                href={activePoi.arUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-block rounded-xl bg-white text-black font-semibold px-4 py-2"
+              >
+                Abrir experiência AR
+              </a>
             ) : null}
           </div>
         )}
