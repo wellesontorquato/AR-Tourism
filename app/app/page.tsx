@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { haversineMeters } from "@/lib/haversine";
-import Modal from "@/components/Modal";
+import Modal from "@/components/Modal"; // Certifique-se que Modal.tsx tem "export default"
 import { renderMarkdownToHtml } from "@/lib/markdown";
 
 // --- TIPOS ---
@@ -21,7 +21,7 @@ type PoiApi = {
 
 type Geo = { lat: number; lng: number; acc?: number };
 
-// --- HELPERS ---
+// --- HELPERS LOCAIS ---
 function formatMeters(m: number) {
   if (!Number.isFinite(m)) return "--";
   if (m < 1000) return `${Math.round(m)}m`;
@@ -54,14 +54,13 @@ const Icons = {
   MapPin: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>,
   X: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
   Map: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>,
-  // Seta grande para o HUD
   NavArrow: () => <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2L4.5 20.29C4.24 20.89 4.87 21.5 5.48 21.2L12 18L18.52 21.2C19.13 21.5 19.76 20.89 19.5 20.29L12 2Z"/></svg>
 };
 
 export default function TouristAppPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // States
+  // --- STATES ---
   const [cameraOn, setCameraOn] = useState(false);
   const [geo, setGeo] = useState<Geo | null>(null);
   const [geoErr, setGeoErr] = useState<string | null>(null);
@@ -82,7 +81,7 @@ export default function TouristAppPage() {
   const compassHandlerRef = useRef<((ev: DeviceOrientationEvent) => void) | null>(null);
   const radiusMeters = 80;
 
-  // --- LOGIC (Load, Geo, Cam, Compass) ---
+  // --- 1. LOAD POIS ---
   useEffect(() => {
     let alive = true;
     async function load() {
@@ -99,6 +98,7 @@ export default function TouristAppPage() {
     return () => { alive = false; };
   }, []);
 
+  // --- 2. GEOLOCATION ---
   useEffect(() => {
     if (!("geolocation" in navigator)) { setGeoErr("GPS Off"); return; }
     const id = navigator.geolocation.watchPosition(
@@ -109,6 +109,7 @@ export default function TouristAppPage() {
     return () => navigator.geolocation.clearWatch(id);
   }, []);
 
+  // --- 3. CAMERA CONTROL ---
   async function startCamera() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
@@ -126,6 +127,7 @@ export default function TouristAppPage() {
     setCameraOn(false);
   }
 
+  // --- 4. COMPASS CONTROL ---
   async function enableCompass() {
     if (compassEnabledRef.current) return;
     try {
@@ -158,7 +160,7 @@ export default function TouristAppPage() {
     };
   }, []);
 
-  // --- CALCS ---
+  // --- CALCULATIONS ---
   const nearby = useMemo(() => {
     if (!geo) return [];
     return pois.map((p) => ({ poi: p, d: haversineMeters(geo.lat, geo.lng, p.lat, p.lng) })).sort((a, b) => a.d - b.d);
@@ -180,7 +182,7 @@ export default function TouristAppPage() {
 
   const modalHtml = activePoi?.description ? renderMarkdownToHtml(activePoi.description) : "";
 
-  // Distância do target para o Google Maps link
+  // Distância do target para o HUD e Link do Maps
   const distanceToTarget = effectiveTarget && geo 
     ? haversineMeters(geo.lat, geo.lng, effectiveTarget.lat, effectiveTarget.lng)
     : 0;
@@ -188,7 +190,7 @@ export default function TouristAppPage() {
   return (
     <main className="relative h-[100dvh] w-full bg-neutral-900 overflow-hidden text-white font-sans selection:bg-white/20">
       
-      {/* --- LAYER 1: Câmera --- */}
+      {/* --- LAYER 1: Câmera / Background --- */}
       <div className="absolute inset-0 z-0">
         {!cameraOn && (
           <div className="flex h-full flex-col items-center justify-center p-6 text-center text-neutral-400">
@@ -204,15 +206,15 @@ export default function TouristAppPage() {
           playsInline
           muted
         />
+        {/* Gradients para legibilidade */}
         <div className="absolute top-0 w-full h-32 bg-gradient-to-b from-black/80 to-transparent pointer-events-none" />
         <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
       </div>
 
       {/* --- LAYER 1.5: HUD AR (Seta Centralizada) --- */}
-      {/* Esta camada fica sobre o vídeo, mas sob a UI. A seta gira baseada na bússola */}
       {cameraOn && heading !== null && relativeAngle !== null && effectiveTarget && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
-            {/* Wrapper da seta com rotação */}
+            {/* Seta Rotativa */}
             <div 
                style={{ 
                  transform: `rotate(${relativeAngle}deg)`,
@@ -223,7 +225,7 @@ export default function TouristAppPage() {
                <Icons.NavArrow />
             </div>
             
-            {/* Texto fixo abaixo da seta (não gira) para dar contexto */}
+            {/* Texto de Distância */}
             <div className="mt-[-4rem] flex flex-col items-center text-center">
                 <span className="text-xs font-bold uppercase tracking-widest text-emerald-400 drop-shadow-md">
                    Destino
@@ -234,7 +236,6 @@ export default function TouristAppPage() {
             </div>
         </div>
       )}
-
 
       {/* --- LAYER 2: UI Header --- */}
       <div className="absolute top-0 left-0 right-0 z-30 flex items-start justify-between p-4 safe-area-top">
@@ -285,7 +286,6 @@ export default function TouristAppPage() {
                   <div className="flex-1 min-w-0">
                     <h3 className="text-base font-bold leading-tight truncate drop-shadow-sm">{poi.name}</h3>
                     <p className="text-xs text-white/70 truncate mt-0.5">{poi.category ?? "Ponto Turístico"}</p>
-                    {/* Nota: A seta saiu daqui e foi para o Layer 1.5 HUD */}
                   </div>
 
                   <button
@@ -322,7 +322,7 @@ export default function TouristAppPage() {
         {/* Centro: Ações Principais (Camera + Maps Link) */}
         <div className="pointer-events-auto flex flex-col items-center gap-4 transform translate-y-2">
             
-            {/* Botão Sutil do Maps (Só aparece se tiver target e GPS) */}
+            {/* Botão do Maps (Só aparece se tiver target e GPS) */}
             {effectiveTarget && geo && (
                 <a 
                    href={`https://www.google.com/maps/dir/?api=1&origin=${geo.lat},${geo.lng}&destination=${effectiveTarget.lat},${effectiveTarget.lng}&travelmode=walking`}
@@ -360,7 +360,7 @@ export default function TouristAppPage() {
         </div>
       </div>
 
-      {/* --- MODAIS (Sem alterações visuais profundas, apenas lógica) --- */}
+      {/* --- MODAIS --- */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="">
         {activePoi && (
           <div className="p-1">
@@ -377,7 +377,6 @@ export default function TouristAppPage() {
                 {modalHtml ? <div dangerouslySetInnerHTML={{ __html: modalHtml }} /> : "Sem descrição."}
              </div>
              <div className="mt-6 flex gap-3">
-                 {/* Ao clicar aqui, o target muda, o Maps button aparece e a seta HUD ativa */}
                  <button 
                     onClick={() => { setTargetPoi(activePoi); setModalOpen(false); }}
                     className="flex-1 py-3 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform"

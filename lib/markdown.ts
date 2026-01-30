@@ -1,31 +1,85 @@
-// Markdown "simples" (MVP): headings, bold, italic, blockquote e quebras de linha.
-// NÃO é um parser completo, mas atende ao requisito de "markdown simples".
+// lib/markdown.ts
+
+// Função auxiliar para evitar XSS (Cross-Site Scripting)
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  // O "as keyof typeof map" garante ao TypeScript que 'm' é uma chave válida
+  return text.replace(/[&<>"']/g, (m) => map[m as keyof typeof map]);
+}
+
 export function renderMarkdownToHtml(md: string): string {
-  let html = md
-    .replace(/\r\n/g, "\n")
-    .replace(/^### (.*)$/gm, "<h3 class='text-lg font-semibold mt-3 mb-2'>$1</h3>")
-    .replace(/^## (.*)$/gm, "<h2 class='text-xl font-bold mt-4 mb-2'>$1</h2>")
-    .replace(/^# (.*)$/gm, "<h1 class='text-2xl font-black mt-4 mb-2'>$1</h1>")
-    .replace(/^> (.*)$/gm, "<blockquote class='border-l-4 pl-3 italic opacity-90 my-2'>$1</blockquote>")
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(/^- (.*)$/gm, "<li class='ml-5 list-disc'>$1</li>");
+  if (!md) return "";
 
-  // Agrupa listas (<li>) em <ul>
-  html = html.replace(/(<li[\s\S]*?<\/li>)/g, "<ul class='my-2'>$1</ul>");
+  // 1. Sanitizar entrada para segurança
+  // Nota: Isso converte caracteres especiais em entidades HTML (ex: > vira &gt;)
+  let clean = escapeHtml(md);
 
-  // Parágrafos e quebras
-  html = html
+  // Normalizar quebras de linha
+  clean = clean.replace(/\r\n/g, "\n");
+
+  // 2. Parse de Elementos de Bloco
+  
+  // Headers (H1-H3)
+  clean = clean
+    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-bold text-white mt-4 mb-2">$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold text-white mt-5 mb-3 border-b border-white/10 pb-1">$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-black text-white mt-6 mb-4">$1</h1>');
+
+  // Blockquotes
+  // AJUSTE: Procura por "^> " OU "^&gt; " já que o escapeHtml rodou antes
+  clean = clean.replace(
+    /^(&gt;|>) (.*$)/gm,
+    '<blockquote class="border-l-4 border-emerald-500 pl-4 py-1 my-4 bg-white/5 text-white/80 italic rounded-r">$2</blockquote>'
+  );
+
+  // Listas não ordenadas (- item)
+  clean = clean.replace(/^- (.*$)/gm, '<li class="ml-4 list-disc marker:text-emerald-400 pl-1">$1</li>');
+  
+  // Envelopar sequências de <li> em <ul>
+  clean = clean.replace(/((<li.*<\/li>\n?)+)/g, '<ul class="my-3 space-y-1 text-white/90">$1</ul>');
+
+  // 3. Parse de Elementos Inline
+  
+  // Bold (**text**)
+  clean = clean.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-bold">$1</strong>');
+  
+  // Italic (*text*)
+  clean = clean.replace(/\*(.*?)\*/g, '<em class="text-white/90">$1</em>');
+
+  // Inline Code (`text`)
+  clean = clean.replace(/`([^`]+)`/g, '<code class="bg-black/30 text-emerald-300 px-1.5 py-0.5 rounded text-sm font-mono border border-white/10">$1</code>');
+
+  // Links básicos [text](url)
+  clean = clean.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g, 
+    '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:underline hover:text-emerald-300 transition-colors">$1</a>'
+  );
+
+  // 4. Tratamento de Parágrafos
+  // Divide por quebra de linha dupla para criar parágrafos
+  return clean
     .split("\n\n")
     .map((block) => {
       const trimmed = block.trim();
       if (!trimmed) return "";
-      if (trimmed.startsWith("<h") || trimmed.startsWith("<ul") || trimmed.startsWith("<blockquote")) {
-        return trimmed.replace(/\n/g, "<br/>");
+      
+      // Se já começa com tag HTML de bloco conhecida, não envolve em <p>
+      if (
+        trimmed.startsWith("<h") || 
+        trimmed.startsWith("<ul") || 
+        trimmed.startsWith("<blockquote")
+      ) {
+        return trimmed;
       }
-      return `<p class="my-2 leading-relaxed">${trimmed.replace(/\n/g, "<br/>")}</p>`;
+      
+      // Caso contrário, é parágrafo. Converte newlines simples internas em <br>
+      return `<p class="text-white/80 leading-relaxed my-2">${trimmed.replace(/\n/g, "<br/>")}</p>`;
     })
     .join("");
-
-  return html;
 }
