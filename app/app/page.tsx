@@ -26,6 +26,23 @@ function formatMeters(m: number) {
   return `${(m / 1000).toFixed(1)} km`;
 }
 
+function bearingDegrees(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const toDeg = (r: number) => (r * 180) / Math.PI;
+
+  const φ1 = toRad(lat1);
+  const φ2 = toRad(lat2);
+  const Δλ = toRad(lon2 - lon1);
+
+  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const x =
+    Math.cos(φ1) * Math.sin(φ2) -
+    Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+
+  const θ = Math.atan2(y, x);
+  return (toDeg(θ) + 360) % 360;
+}
+
 export default function TouristAppPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -41,6 +58,10 @@ export default function TouristAppPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [activePoi, setActivePoi] = useState<PoiApi | null>(null);
+
+  const [listOpen, setListOpen] = useState(false);
+  const [targetPoi, setTargetPoi] = useState<PoiApi | null>(null);
+  const [bearingToTarget, setBearingToTarget] = useState<number | null>(null);
 
   const radiusMeters = 80;
 
@@ -133,12 +154,12 @@ export default function TouristAppPage() {
     setCameraOn(false);
   }
 
-  // Compass / heading (MVP)
+  // Compass / heading
   async function enableCompass() {
     try {
       setHeadingErr(null);
 
-      // iOS requires permission via requestPermission
+      // iOS permission
       // @ts-ignore
       if (
         typeof DeviceOrientationEvent !== "undefined" &&
@@ -160,17 +181,25 @@ export default function TouristAppPage() {
 
       const handler = (ev: DeviceOrientationEvent) => {
         const anyEv = ev as any;
+
+        // iOS
         if (typeof anyEv.webkitCompassHeading === "number") {
           setHeading(anyEv.webkitCompassHeading);
           return;
         }
+
+        // Android/others
         if (typeof ev.alpha === "number") {
           const h = (360 - ev.alpha) % 360;
           setHeading(h);
         }
       };
 
-      window.addEventListener("deviceorientation", handler, true);
+      // Some browsers fire one or the other
+      window.addEventListener("deviceorientationabsolute", handler as any, true);
+      window.addEventListener("deviceorientation", handler as any, true);
+
+      alert("Bússola ativada! Se estiver imprecisa, calibre movendo o celular em '8'.");
     } catch {
       setHeadingErr("Não foi possível habilitar a bússola.");
     }
@@ -192,6 +221,14 @@ export default function TouristAppPage() {
     if (first.d > radiusMeters) return null;
     return first;
   }, [nearby]);
+
+  useEffect(() => {
+    if (!geo || !targetPoi) {
+      setBearingToTarget(null);
+      return;
+    }
+    setBearingToTarget(bearingDegrees(geo.lat, geo.lng, targetPoi.lat, targetPoi.lng));
+  }, [geo, targetPoi]);
 
   function openDetails(p: PoiApi) {
     setActivePoi(p);
@@ -262,11 +299,13 @@ export default function TouristAppPage() {
 
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-sm text-white/70">
-                  {loadingPois
-                    ? "Carregando pontos…"
-                    : `${pois.length} pontos cadastrados`}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setListOpen(true)}
+                  className="text-left text-sm text-white/70 underline underline-offset-2"
+                >
+                  {loadingPois ? "Carregando pontos…" : `${pois.length} pontos cadastrados`}
+                </button>
 
                 <div className="text-lg font-bold">
                   {nearest ? nearest.poi.name : "Aproxime-se de um ponto cultural"}
@@ -274,11 +313,63 @@ export default function TouristAppPage() {
 
                 <div className="text-sm text-white/75 mt-1">
                   {nearest
-                    ? `${formatMeters(nearest.d)} • ${
-                        nearest.poi.category ?? "Sem categoria"
-                      }`
+                    ? `${formatMeters(nearest.d)} • ${nearest.poi.category ?? "Sem categoria"}`
                     : "Dica: caminhe e mantenha o GPS ativo. Ao chegar perto (≤ 80m), aparece o conteúdo."}
                 </div>
+
+                {/* Target guidance */}
+                {targetPoi && geo ? (
+                  <div className="mt-3 text-sm text-white/80">
+                    <div>
+                      🎯 Destino: <b>{targetPoi.name}</b>
+                    </div>
+
+                    <div className="mt-1">
+                      Distância:{" "}
+                      <b>
+                        {formatMeters(
+                          haversineMeters(geo.lat, geo.lng, targetPoi.lat, targetPoi.lng)
+                        )}
+                      </b>
+                    </div>
+
+                    {heading !== null && bearingToTarget !== null ? (
+                      <div className="mt-1">
+                        🧭 Direção: <b>{Math.round(bearingToTarget)}°</b>{" "}
+                        <span className="text-white/60">
+                          (seu rumo: {Math.round(heading)}°)
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="mt-1 text-white/60">
+                        Ative a bússola para ver a direção.
+                      </div>
+                    )}
+
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        onClick={() => setTargetPoi(null)}
+                        className="rounded-xl bg-black/45 border border-white/20 font-semibold px-3 py-2 text-sm"
+                      >
+                        Limpar destino
+                      </button>
+
+                      <a
+                        className="rounded-xl bg-white text-black font-semibold px-3 py-2 text-sm"
+                        href={
+                          `https://www.google.com/maps/dir/?api=1` +
+                          (geo ? `&origin=${geo.lat},${geo.lng}` : "") +
+                          `&destination=${targetPoi.lat},${targetPoi.lng}` +
+                          `&travelmode=walking`
+                        }
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Abrir no Maps
+                      </a>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               <div className="flex flex-col gap-2 min-w-[140px]">
@@ -310,11 +401,8 @@ export default function TouristAppPage() {
         </div>
       </div>
 
-      <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={activePoi?.name ?? ""}
-      >
+      {/* Details modal */}
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={activePoi?.name ?? ""}>
         {activePoi && (
           <div className="space-y-3">
             <div className="text-sm text-white/70">
@@ -352,6 +440,34 @@ export default function TouristAppPage() {
             ) : null}
           </div>
         )}
+      </Modal>
+
+      {/* List modal */}
+      <Modal open={listOpen} onClose={() => setListOpen(false)} title="Pontos turísticos">
+        <div className="space-y-2">
+          {nearby.length === 0 ? (
+            <div className="text-sm text-white/70">Sem pontos para listar.</div>
+          ) : (
+            nearby.map(({ poi, d }) => (
+              <button
+                key={String(poi.id)}
+                onClick={() => {
+                  setTargetPoi(poi);
+                  setListOpen(false);
+                }}
+                className="w-full text-left rounded-xl bg-black/40 border border-white/15 p-3"
+              >
+                <div className="font-semibold text-white">{poi.name}</div>
+                <div className="text-xs text-white/70">
+                  {poi.category ?? "Sem categoria"} • {formatMeters(d)}
+                </div>
+                {poi.address ? (
+                  <div className="text-xs text-white/50 mt-1">{poi.address}</div>
+                ) : null}
+              </button>
+            ))
+          )}
+        </div>
       </Modal>
     </main>
   );
