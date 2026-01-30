@@ -1,6 +1,4 @@
-// lib/markdown.ts
-
-// Função auxiliar para evitar XSS (Cross-Site Scripting)
+// Função auxiliar para evitar XSS
 function escapeHtml(text: string): string {
   const map: Record<string, string> = {
     "&": "&amp;",
@@ -9,15 +7,13 @@ function escapeHtml(text: string): string {
     '"': "&quot;",
     "'": "&#039;",
   };
-  // O "as keyof typeof map" garante ao TypeScript que 'm' é uma chave válida
   return text.replace(/[&<>"']/g, (m) => map[m as keyof typeof map]);
 }
 
 export function renderMarkdownToHtml(md: string): string {
   if (!md) return "";
 
-  // 1. Sanitizar entrada para segurança
-  // Nota: Isso converte caracteres especiais em entidades HTML (ex: > vira &gt;)
+  // 1. Sanitizar entrada
   let clean = escapeHtml(md);
 
   // Normalizar quebras de linha
@@ -31,14 +27,13 @@ export function renderMarkdownToHtml(md: string): string {
     .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold text-white mt-5 mb-3 border-b border-white/10 pb-1">$1</h2>')
     .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-black text-white mt-6 mb-4">$1</h1>');
 
-  // Blockquotes
-  // AJUSTE: Procura por "^> " OU "^&gt; " já que o escapeHtml rodou antes
+  // Blockquotes (ajustado para pegar &gt; pois foi escapado)
   clean = clean.replace(
     /^(&gt;|>) (.*$)/gm,
     '<blockquote class="border-l-4 border-emerald-500 pl-4 py-1 my-4 bg-white/5 text-white/80 italic rounded-r">$2</blockquote>'
   );
 
-  // Listas não ordenadas (- item)
+  // Listas não ordenadas
   clean = clean.replace(/^- (.*$)/gm, '<li class="ml-4 list-disc marker:text-emerald-400 pl-1">$1</li>');
   
   // Envelopar sequências de <li> em <ul>
@@ -62,14 +57,12 @@ export function renderMarkdownToHtml(md: string): string {
   );
 
   // 4. Tratamento de Parágrafos
-  // Divide por quebra de linha dupla para criar parágrafos
   return clean
     .split("\n\n")
     .map((block) => {
       const trimmed = block.trim();
       if (!trimmed) return "";
       
-      // Se já começa com tag HTML de bloco conhecida, não envolve em <p>
       if (
         trimmed.startsWith("<h") || 
         trimmed.startsWith("<ul") || 
@@ -78,7 +71,6 @@ export function renderMarkdownToHtml(md: string): string {
         return trimmed;
       }
       
-      // Caso contrário, é parágrafo. Converte newlines simples internas em <br>
       return `<p class="text-white/80 leading-relaxed my-2">${trimmed.replace(/\n/g, "<br/>")}</p>`;
     })
     .join("");
