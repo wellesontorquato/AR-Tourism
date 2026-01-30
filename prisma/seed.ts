@@ -224,13 +224,25 @@ async function main() {
       {
         name: "Casas Jardim (Matriz)",
         description: "Item de teste adicionado no Centro.",
-        category: "Teste",
+        category: "História",
         address: "Rua Barão de Penedo, 153 - Centro, Maceió - AL",
         lat: -9.666126,
         lng: -35.73885,
         imageUrl: null,
         arUrl: null,
       },
+
+      {
+        name: "Edifício Breda",
+        description: "Edifício histórico e um dos primeiros arranha-céus de Maceió, símbolo da modernização urbana do Centro.",
+        category: "História",
+        address: "Rua do Comércio, Centro, Maceió - AL",
+        lat: -9.666944,
+        lng: -35.737778,
+        imageUrl: null,
+        arUrl: null,
+    },
+
     ],
     skipDuplicates: true,
   });
