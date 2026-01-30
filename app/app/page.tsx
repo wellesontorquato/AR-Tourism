@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { haversineMeters } from "@/lib/haversine";
-import Modal from "@/components/Modal"; // Certifique-se que Modal.tsx tem "export default"
+import Modal from "@/components/Modal";
 import { renderMarkdownToHtml } from "@/lib/markdown";
 
 // --- TIPOS ---
@@ -187,6 +187,12 @@ export default function TouristAppPage() {
     ? haversineMeters(geo.lat, geo.lng, effectiveTarget.lat, effectiveTarget.lng)
     : 0;
 
+  // --- MISSING FUNCTION ADDED HERE ---
+  function openDetails(p: PoiApi) {
+    setActivePoi(p);
+    setModalOpen(true);
+  }
+
   return (
     <main className="relative h-[100dvh] w-full bg-neutral-900 overflow-hidden text-white font-sans selection:bg-white/20">
       
@@ -325,7 +331,7 @@ export default function TouristAppPage() {
             {/* Botão do Maps (Só aparece se tiver target e GPS) */}
             {effectiveTarget && geo && (
                 <a 
-                   href={`https://www.google.com/maps/dir/?api=1&origin=${geo.lat},${geo.lng}&destination=${effectiveTarget.lat},${effectiveTarget.lng}&travelmode=walking`}
+                   href={`http://googleusercontent.com/maps.google.com/?api=1&origin=${geo.lat},${geo.lng}&destination=${effectiveTarget.lat},${effectiveTarget.lng}&travelmode=walking`}
                    target="_blank"
                    rel="noreferrer"
                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/60 border border-white/10 backdrop-blur-md text-xs font-semibold text-white/90 hover:bg-white/10 hover:border-white/30 transition-all animate-in fade-in slide-in-from-bottom-2"
