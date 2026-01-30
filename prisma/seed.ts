@@ -3,8 +3,12 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  // (opcional) limpa antes de popular
-  await prisma.poi.deleteMany();
+  const isDev = process.env.NODE_ENV !== "production";
+
+  // ⚠️ SOMENTE EM DEV (evita apagar o banco em produção no Railway)
+  if (isDev) {
+    await prisma.poi.deleteMany();
+  }
 
   await prisma.poi.createMany({
     data: [
@@ -26,8 +30,8 @@ async function main() {
         description: "Praça histórica no coração do Centro, em frente à Catedral.",
         category: "História",
         address: "Praça Dom Pedro II, Centro, Maceió - AL",
-        lat: -9.665500,
-        lng: -35.735600,
+        lat: -9.6655,
+        lng: -35.7356,
         imageUrl: null,
         arUrl: null,
       },
@@ -37,7 +41,7 @@ async function main() {
         category: "História",
         address: "Centro, Maceió - AL",
         lat: -9.665833,
-        lng: -35.735000,
+        lng: -35.735,
         imageUrl: null,
         arUrl: null,
       },
@@ -56,8 +60,8 @@ async function main() {
         description: "Igreja histórica ligada à memória da população negra na cidade.",
         category: "História",
         address: "Centro, Maceió - AL",
-        lat: -9.666000,
-        lng: -35.739500,
+        lat: -9.666,
+        lng: -35.7395,
         imageUrl: null,
         arUrl: null,
       },
@@ -76,8 +80,8 @@ async function main() {
         description: "Praça histórica que integra o conjunto cultural do Centro.",
         category: "História",
         address: "Praça Marechal Deodoro, Centro, Maceió - AL",
-        lat: -9.664800,
-        lng: -35.741500,
+        lat: -9.6648,
+        lng: -35.7415,
         imageUrl: null,
         arUrl: null,
       },
@@ -120,8 +124,8 @@ async function main() {
         description: "Região histórica com armazéns, casario, museus e espaços culturais.",
         category: "História",
         address: "Jaraguá, Maceió - AL",
-        lat: -9.672500,
-        lng: -35.722200,
+        lat: -9.6725,
+        lng: -35.7222,
         imageUrl: null,
         arUrl: null,
       },
@@ -131,7 +135,7 @@ async function main() {
         category: "História",
         address: "Av. da Paz, Maceió - AL",
         lat: -9.669368,
-        lng: -35.732670,
+        lng: -35.73267,
         imageUrl: null,
         arUrl: null,
       },
@@ -140,8 +144,8 @@ async function main() {
         description: "Acervo de arte sacra em espaço cultural tradicional de Maceió.",
         category: "História",
         address: "Jaraguá, Maceió - AL",
-        lat: -9.671000,
-        lng: -35.724500,
+        lat: -9.671,
+        lng: -35.7245,
         imageUrl: null,
         arUrl: null,
       },
@@ -194,8 +198,8 @@ async function main() {
         description: "Memorial ligado a um símbolo histórico/cultural da orla de Maceió.",
         category: "História",
         address: "Orla de Maceió - AL",
-        lat: -9.662800,
-        lng: -35.706000,
+        lat: -9.6628,
+        lng: -35.706,
         imageUrl: null,
         arUrl: null,
       },
@@ -223,7 +227,7 @@ async function main() {
         category: "Teste",
         address: "Rua Barão de Penedo, 153 - Centro, Maceió - AL",
         lat: -9.666126,
-        lng: -35.738850,
+        lng: -35.73885,
         imageUrl: null,
         arUrl: null,
       },
@@ -231,12 +235,12 @@ async function main() {
     skipDuplicates: true,
   });
 
-  console.log("Seed concluído.");
+  console.log("✅ Seed concluído.");
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("❌ Erro no seed:", e);
     process.exit(1);
   })
   .finally(async () => {
