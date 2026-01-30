@@ -5,11 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-
     "start": "sh -c \"npx prisma migrate deploy && next start -p $PORT\"",
-
     "postinstall": "prisma generate",
-
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
@@ -27,6 +24,7 @@
   "devDependencies": {
     "@types/node": "20.11.30",
     "@types/react": "18.2.79",
+    "@types/react-dom": "^18.3.7",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.41",
     "prisma": "^5.18.0",
