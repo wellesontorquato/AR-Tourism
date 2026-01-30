@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import crypto from "crypto";
+import crypto from "node:crypto";
 
 const COOKIE_NAME = "ar_admin_session";
 
@@ -15,35 +15,54 @@ function getSecret() {
 }
 
 function sign(payload: string) {
+  // retorna hex
   return crypto.createHmac("sha256", getSecret()).update(payload).digest("hex");
 }
 
 export function createSessionToken(user: string) {
   const issuedAt = Date.now();
+  // token format: user.issuedAt.sigHex
   const payload = `${user}.${issuedAt}`;
-  const sig = sign(payload);
-  return `${payload}.${sig}`;
+  const sigHex = sign(payload);
+  return `${payload}.${sigHex}`;
+}
+
+function hexToUint8(hex: string): Uint8Array {
+  // garante "bytes" reais (não Buffer) para satisfazer Node 22 + TS
+  return Uint8Array.from(Buffer.from(hex, "hex"));
 }
 
 export function verifySessionToken(token: string): AdminSession | null {
+  if (!token) return null;
+
   const parts = token.split(".");
   if (parts.length !== 3) return null;
 
-  const [user, issuedAtStr, sig] = parts;
-  const payload = `${user}.${issuedAtStr}`;
-  const expected = sign(payload);
+  const [user, issuedAtStr, sigHex] = parts;
 
-  // evita timing attacks simples
-  const ok =
-    expected.length === sig.length &&
-    crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(sig));
+  if (!user || !issuedAtStr || !sigHex) return null;
+  if (!/^\d+$/.test(issuedAtStr)) return null; // issuedAt só dígitos
+  if (!/^[0-9a-f]+$/i.test(sigHex)) return null; // assinatura hex
+
+  const payload = `${user}.${issuedAtStr}`;
+  const expectedHex = sign(payload);
+
+  // evita timing attacks (comparação constante)
+  let ok = false;
+  try {
+    const a = hexToUint8(expectedHex);
+    const b = hexToUint8(sigHex);
+    ok = a.length === b.length && crypto.timingSafeEqual(a, b);
+  } catch {
+    return null;
+  }
 
   if (!ok) return null;
 
   const issuedAt = Number(issuedAtStr);
   if (!Number.isFinite(issuedAt)) return null;
 
-  // Mock: expira em 7 dias
+  // expira em 7 dias
   const maxAgeMs = 7 * 24 * 60 * 60 * 1000;
   if (Date.now() - issuedAt > maxAgeMs) return null;
 
@@ -62,7 +81,7 @@ export function setAdminSessionCookie(token: string) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7 dias
+    maxAge: 60 * 60 * 24 * 7 // 7 dias
   });
 }
 
@@ -72,14 +91,14 @@ export function clearAdminSessionCookie() {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 0,
+    maxAge: 0
   });
 }
 
 export function getAdminCredentials() {
   return {
     user: process.env.ADMIN_USER || "admin",
-    pass: process.env.ADMIN_PASS || "admin",
+    pass: process.env.ADMIN_PASS || "admin"
   };
 }
 
