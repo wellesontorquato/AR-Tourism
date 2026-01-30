@@ -19,12 +19,22 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Protege /api/pois
-  if (isPoisApi && !hasSession) {
-    return NextResponse.json(
-      { ok: false, error: "Não autorizado" },
-      { status: 401 }
-    );
+  // ✅ /api/pois: GET público, escrita protegida
+  if (isPoisApi) {
+    const method = req.method.toUpperCase();
+
+    // Permite leitura pública (lista + detalhe)
+    if (method === "GET" || method === "HEAD" || method === "OPTIONS") {
+      return NextResponse.next();
+    }
+
+    // Bloqueia escrita sem sessão (POST/PUT/PATCH/DELETE)
+    if (!hasSession) {
+      return NextResponse.json(
+        { ok: false, error: "Não autorizado" },
+        { status: 401 }
+      );
+    }
   }
 
   return NextResponse.next();
