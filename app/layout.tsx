@@ -3,12 +3,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "AR Tourism",
-    template: "%s | AR Tourism",
+    default: "Go Alagoas",
+    template: "%s | Go Alagoas",
   },
   description:
     "Plataforma de turismo com realidade aumentada para pontos de interesse.",
-  applicationName: "AR Tourism",
+  applicationName: "Go Alagoas",
   manifest: "/manifest.json",
   themeColor: "#0f172a",
   icons: {
