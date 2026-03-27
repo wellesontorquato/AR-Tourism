@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <div className="max-w-xl w-full rounded-2xl bg-white/10 border border-white/15 p-6 shadow-lg">
-        <h1 className="text-2xl font-black">AR Turismo Cultural (MVP)</h1>
+        <h1 className="text-2xl font-black">Go Alagoas</h1>
         <p className="mt-3 text-white/80">
           MVP com “AR leve”: câmera + GPS + bússola e curadoria via painel admin.
         </p>

@@ -1,4 +1,4 @@
-# AR Turismo Cultural (MVP)
+# Go Alagoas Cultural (MVP)
 
 MVP full-stack:
 - Next.js (App Router) + TypeScript + Tailwind
