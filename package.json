@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "sh -c \"npx prisma migrate deploy && next start -p $PORT\"",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
