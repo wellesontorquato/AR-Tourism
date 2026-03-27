@@ -22,8 +22,8 @@ type Geo = { lat: number; lng: number; acc?: number };
 
 function formatMeters(m: number) {
   if (!Number.isFinite(m)) return "--";
-  if (m < 1000) return `${Math.round(m)}m`;
-  return `${(m / 1000).toFixed(1)}km`;
+  if (m < 1000) return `${Math.round(m)} m`;
+  return `${(m / 1000).toFixed(1)} km`;
 }
 
 function bearingDegrees(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -100,8 +100,8 @@ const Icons = {
       <line x1="16" y1="6" x2="16" y2="22" />
     </svg>
   ),
-  NavArrow: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="92" height="92" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+  Arrow: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="104" height="104" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2L4.5 20.29C4.24 20.89 4.87 21.5 5.48 21.2L12 18L18.52 21.2C19.13 21.5 19.76 20.89 19.5 20.29L12 2Z" />
     </svg>
   ),
@@ -273,9 +273,7 @@ export default function TouristAppPage() {
       }
 
       const handler = (ev: DeviceOrientationEvent) => {
-        const anyEv = ev as DeviceOrientationEvent & {
-          webkitCompassHeading?: number;
-        };
+        const anyEv = ev as DeviceOrientationEvent & { webkitCompassHeading?: number };
 
         if (typeof anyEv.webkitCompassHeading === "number") {
           setHeading(anyEv.webkitCompassHeading);
@@ -290,7 +288,7 @@ export default function TouristAppPage() {
       window.addEventListener("deviceorientationabsolute", handler as EventListener, true);
       window.addEventListener("deviceorientation", handler as EventListener, true);
     } catch {
-      setHeadingErr("Erro Bússola");
+      setHeadingErr("Erro na bússola");
     }
   }
 
@@ -371,64 +369,86 @@ export default function TouristAppPage() {
   }
 
   return (
-    <main className="relative h-[100dvh] w-full overflow-hidden bg-slate-950 text-white selection:bg-cyan-300/20">
+    <main className="relative h-[100dvh] w-full overflow-hidden bg-slate-950 text-white">
+      {/* Fundo */}
       <div className="absolute inset-0 z-0">
         {!cameraOn && (
-          <div className="relative flex h-full flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.16),transparent_30%),linear-gradient(180deg,#07111f_0%,#0b1e2d_100%)] p-6 text-center">
-            <div className="absolute inset-0 opacity-30" />
-            <div className="relative flex h-20 w-20 items-center justify-center rounded-full border border-white/10 bg-white/5 text-cyan-200 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+          <div className="relative flex h-full flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.18),transparent_30%),radial-gradient(circle_at_bottom,rgba(16,185,129,0.12),transparent_28%),linear-gradient(180deg,#07111f_0%,#0b1724_100%)] p-6 text-center">
+            <div className="absolute inset-0 bg-[url('/images/alagoas/hero-pajucara.jpg')] bg-cover bg-center opacity-[0.14]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 to-slate-950/60" />
+
+            <div className="relative z-10 flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-white/8 text-cyan-100 shadow-[0_30px_70px_rgba(0,0,0,0.35)] backdrop-blur-xl">
               <Icons.CameraOff />
             </div>
-            <h2 className="mt-6 text-2xl font-black tracking-tight">Go Alagoas AR</h2>
-            <p className="mt-3 max-w-sm text-sm leading-7 text-white/70">
-              Ative a câmera para explorar os pontos ao seu redor com uma experiência limpa e imersiva.
+
+            <h2 className="relative z-10 mt-6 text-3xl font-black tracking-tight">
+              Go Alagoas AR
+            </h2>
+
+            <p className="relative z-10 mt-4 max-w-md text-sm leading-7 text-white/72 sm:text-base">
+              Ative a câmera para explorar pontos turísticos ao seu redor com uma
+              interface mais limpa, elegante e inspirada em Alagoas.
             </p>
-            {cameraErr && <p className="mt-4 text-sm text-red-300">{cameraErr}</p>}
+
+            {cameraErr && (
+              <p className="relative z-10 mt-4 text-sm text-red-300">{cameraErr}</p>
+            )}
           </div>
         )}
 
         <video
           ref={videoRef}
-          className={`h-full w-full object-cover transition-opacity duration-700 ${cameraOn ? "opacity-100" : "opacity-0"}`}
+          className={`h-full w-full object-cover transition-opacity duration-700 ${
+            cameraOn ? "opacity-100" : "opacity-0"
+          }`}
           playsInline
           muted
           autoPlay
         />
 
-        <div className="absolute top-0 h-36 w-full bg-gradient-to-b from-slate-950/85 via-slate-950/35 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 h-52 w-full bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_22%),radial-gradient(circle_at_top_right,rgba(34,211,238,0.10),transparent_22%)]" />
+        <div className="pointer-events-none absolute top-0 h-40 w-full bg-gradient-to-b from-slate-950/85 via-slate-950/35 to-transparent" />
+        <div className="pointer-events-none absolute bottom-0 h-64 w-full bg-gradient-to-t from-slate-950 via-slate-950/55 to-transparent" />
       </div>
 
+      {/* Seta central */}
       {cameraOn && heading !== null && relativeAngle !== null && effectiveTarget && (
         <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center">
           <div
             className="pb-24 text-cyan-100 transition-transform duration-200 ease-linear"
             style={{
               transform: `rotate(${relativeAngle}deg)`,
-              filter: "drop-shadow(0 0 18px rgba(0,0,0,0.45))",
+              filter: "drop-shadow(0 0 22px rgba(0,0,0,0.42))",
             }}
           >
-            <Icons.NavArrow />
+            <Icons.Arrow />
           </div>
 
           <div className="-mt-16 flex flex-col items-center text-center">
-            <span className="rounded-full border border-emerald-400/25 bg-emerald-400/12 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] text-emerald-300 backdrop-blur-md">
-              destino
+            <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] text-emerald-300 backdrop-blur-md">
+              destino atual
             </span>
-            <span className="mt-3 text-2xl font-black drop-shadow-md">
+            <span className="mt-3 text-3xl font-black drop-shadow-md">
               {geo ? formatMeters(distanceToTarget) : "Sem GPS"}
             </span>
+            {effectiveTarget && (
+              <span className="mt-2 max-w-[240px] text-sm text-white/75">
+                {effectiveTarget.name}
+              </span>
+            )}
           </div>
         </div>
       )}
 
+      {/* Topo */}
       <div className="absolute left-0 right-0 top-0 z-30 p-4 sm:p-5">
         <div className="mx-auto flex max-w-6xl items-start justify-between gap-3">
-          <div className="rounded-[1.5rem] border border-white/10 bg-white/8 px-4 py-3 backdrop-blur-xl shadow-[0_12px_35px_rgba(0,0,0,0.18)]">
+          <div className="rounded-[1.75rem] border border-white/10 bg-white/8 px-4 py-3 backdrop-blur-2xl shadow-[0_18px_45px_rgba(0,0,0,0.20)]">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-sky-400 to-emerald-400 text-slate-950 shadow-sm">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-sky-400 to-emerald-400 text-slate-950 shadow-sm">
                 <span className="text-xs font-black">GA</span>
               </div>
+
               <div>
                 <h1 className="text-sm font-black tracking-wide text-white sm:text-base">
                   Go Alagoas AR
@@ -445,6 +465,13 @@ export default function TouristAppPage() {
                       Buscando GPS
                     </span>
                   )}
+
+                  {heading !== null && (
+                    <span className="rounded-full bg-white/6 px-2 py-0.5">
+                      bússola ativa
+                    </span>
+                  )}
+
                   {geoErr && <span className="text-red-300">• {geoErr}</span>}
                 </div>
               </div>
@@ -452,10 +479,12 @@ export default function TouristAppPage() {
 
             {!loadingPois && (
               <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-white/55">
-                <span className="rounded-full bg-white/6 px-2.5 py-1">{pois.length} pontos</span>
+                <span className="rounded-full bg-white/6 px-2.5 py-1">
+                  {pois.length} pontos
+                </span>
                 {geo && (
                   <span className="rounded-full bg-white/6 px-2.5 py-1">
-                    {inRange.length} em até {radiusMeters}m
+                    {inRange.length} próximos
                   </span>
                 )}
               </div>
@@ -464,13 +493,14 @@ export default function TouristAppPage() {
 
           <button
             onClick={() => setListOpen(true)}
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/90 backdrop-blur-xl shadow-[0_10px_28px_rgba(0,0,0,0.18)] transition hover:bg-white/15 active:scale-95"
+            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/90 backdrop-blur-2xl shadow-[0_12px_28px_rgba(0,0,0,0.18)] transition hover:bg-white/15 active:scale-95"
           >
             <Icons.List />
           </button>
         </div>
       </div>
 
+      {/* Cards próximos */}
       {cameraOn && geo && inRange.length > 0 && (
         <div className="absolute left-4 right-4 top-28 z-20 flex flex-col gap-3 sm:left-5 sm:right-5 sm:top-32">
           <div className="mx-auto w-full max-w-3xl space-y-3">
@@ -480,32 +510,39 @@ export default function TouristAppPage() {
               return (
                 <div
                   key={String(poi.id)}
-                  className={`overflow-hidden rounded-[1.5rem] border backdrop-blur-xl transition-all duration-300 ${
+                  className={`overflow-hidden rounded-[1.75rem] border backdrop-blur-2xl transition-all duration-300 ${
                     isTarget
-                      ? "border-cyan-300/25 bg-slate-950/38 shadow-[0_14px_40px_rgba(0,0,0,0.22)]"
-                      : "border-white/8 bg-slate-950/28 opacity-75"
+                      ? "border-cyan-300/20 bg-slate-950/40 shadow-[0_18px_50px_rgba(0,0,0,0.22)]"
+                      : "border-white/8 bg-slate-950/28 opacity-85"
                   }`}
                 >
                   <div className="flex items-center gap-4 p-4">
-                    <div className="flex min-w-[3.8rem] flex-col items-center justify-center rounded-[1rem] border border-white/8 bg-white/8 px-2 py-2.5">
-                      <span className="text-sm font-black">{Math.round(d)}</span>
+                    <div className="flex min-w-[4.2rem] flex-col items-center justify-center rounded-[1.1rem] border border-white/8 bg-white/8 px-2 py-3">
+                      <span className="text-base font-black">{Math.round(d)}</span>
                       <span className="text-[10px] uppercase tracking-[0.18em] text-white/55">
                         m
                       </span>
                     </div>
 
                     <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
+                          {poi.category ?? "Ponto"}
+                        </span>
+                      </div>
+
                       <h3 className="truncate text-[15px] font-bold leading-tight text-white">
                         {poi.name}
                       </h3>
-                      <p className="mt-1 truncate text-xs text-cyan-100/75">
-                        {poi.category ?? "Ponto turístico"}
+
+                      <p className="mt-1 truncate text-xs text-white/65">
+                        {poi.address ?? "Ponto turístico em Alagoas"}
                       </p>
                     </div>
 
                     <button
                       onClick={() => openDetails(poi)}
-                      className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-950 shadow-md transition active:scale-90"
+                      className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-slate-950 shadow-md transition hover:scale-105 active:scale-90"
                     >
                       <span className="text-lg font-light leading-none">+</span>
                     </button>
@@ -517,15 +554,30 @@ export default function TouristAppPage() {
         </div>
       )}
 
+      {/* Estado vazio */}
+      {cameraOn && geo && inRange.length === 0 && (
+        <div className="absolute left-4 right-4 top-28 z-20 sm:left-5 sm:right-5 sm:top-32">
+          <div className="mx-auto max-w-xl rounded-[1.75rem] border border-white/10 bg-slate-950/34 p-4 text-center backdrop-blur-2xl">
+            <p className="text-sm font-semibold text-white">
+              Nenhum ponto em até {radiusMeters}m no momento
+            </p>
+            <p className="mt-2 text-xs leading-6 text-white/65">
+              Abra a lista para explorar todos os pontos cadastrados ou caminhe um pouco para descobrir lugares próximos.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Barra inferior */}
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-30 px-5 pb-8 pt-20">
         <div className="mx-auto flex max-w-6xl items-end justify-between">
           <div className="pointer-events-auto flex flex-col items-center gap-1">
             <button
               onClick={enableCompass}
-              className={`flex h-12 w-12 items-center justify-center rounded-full border backdrop-blur-xl transition-all duration-300 ${
+              className={`flex h-13 w-13 items-center justify-center rounded-full border backdrop-blur-2xl transition-all duration-300 ${
                 heading !== null
-                  ? "border-emerald-400/30 bg-emerald-400/12 text-emerald-300"
-                  : "border-white/8 bg-white/8 text-white/60"
+                  ? "border-emerald-400/25 bg-emerald-400/10 text-emerald-300"
+                  : "border-white/8 bg-white/8 text-white/65"
               }`}
             >
               <div
@@ -550,7 +602,7 @@ export default function TouristAppPage() {
                 href={getGoogleMapsUrl(effectiveTarget, geo)}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white/90 backdrop-blur-xl transition hover:bg-white/15"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white/90 backdrop-blur-2xl transition hover:bg-white/15"
               >
                 <Icons.Map />
                 <span>Abrir no Maps</span>
@@ -559,13 +611,17 @@ export default function TouristAppPage() {
 
             <button
               onClick={cameraOn ? stopCamera : startCamera}
-              className={`flex h-20 w-20 items-center justify-center rounded-full border-4 shadow-[0_18px_50px_rgba(0,0,0,0.28)] transition-all ${
+              className={`flex h-20 w-20 items-center justify-center rounded-full border-4 shadow-[0_24px_55px_rgba(0,0,0,0.30)] transition-all ${
                 cameraOn
-                  ? "border-white/30 bg-white/8 text-white hover:bg-white/12"
+                  ? "border-white/30 bg-white/10 text-white hover:bg-white/14"
                   : "border-white/25 bg-white text-slate-950 hover:scale-105"
               }`}
             >
-              {cameraOn ? <div className="h-8 w-8 rounded bg-red-500" /> : <Icons.Camera />}
+              {cameraOn ? (
+                <div className="h-8 w-8 rounded bg-red-500" />
+              ) : (
+                <Icons.Camera />
+              )}
             </button>
           </div>
 
@@ -573,7 +629,7 @@ export default function TouristAppPage() {
             {targetPoi ? (
               <button
                 onClick={() => setTargetPoi(null)}
-                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/8 bg-white/8 text-white/70 backdrop-blur-xl transition hover:text-white"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/8 bg-white/8 text-white/70 backdrop-blur-2xl transition hover:text-white"
               >
                 <Icons.X />
               </button>
@@ -584,9 +640,19 @@ export default function TouristAppPage() {
         </div>
       </div>
 
+      {/* Modal detalhe */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="">
         {activePoi && (
           <div className="p-1">
+            {activePoi.imageUrl && (
+              <div
+                className="mb-4 h-48 w-full rounded-[1.5rem] bg-cover bg-center"
+                style={{
+                  backgroundImage: `linear-gradient(to bottom, rgba(15,23,42,0.08), rgba(15,23,42,0.28)), url('${activePoi.imageUrl}')`,
+                }}
+              />
+            )}
+
             <div className="mb-4">
               <span className="mb-2 inline-block rounded-full bg-cyan-400/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
                 {activePoi.category ?? "Geral"}
@@ -600,13 +666,20 @@ export default function TouristAppPage() {
 
               {geo && (
                 <p className="mt-2 text-xs text-white/45">
-                  Distância: {formatMeters(haversineMeters(geo.lat, geo.lng, activePoi.lat, activePoi.lng))}
+                  Distância:{" "}
+                  {formatMeters(
+                    haversineMeters(geo.lat, geo.lng, activePoi.lat, activePoi.lng)
+                  )}
                 </p>
               )}
             </div>
 
-            <div className="rounded-[1.25rem] border border-white/6 bg-white/5 p-4 prose prose-invert prose-sm max-w-none text-white/80">
-              {modalHtml ? <div dangerouslySetInnerHTML={{ __html: modalHtml }} /> : "Sem descrição."}
+            <div className="rounded-[1.35rem] border border-white/6 bg-white/5 p-4 prose prose-invert prose-sm max-w-none text-white/80">
+              {modalHtml ? (
+                <div dangerouslySetInnerHTML={{ __html: modalHtml }} />
+              ) : (
+                "Sem descrição."
+              )}
             </div>
 
             <div className="mt-6 flex flex-col gap-3">
@@ -615,7 +688,7 @@ export default function TouristAppPage() {
                   setTargetPoi(activePoi);
                   setModalOpen(false);
                 }}
-                className="w-full rounded-xl bg-white py-3 font-bold text-slate-950 transition active:scale-95"
+                className="w-full rounded-2xl bg-white py-3.5 font-bold text-slate-950 transition hover:bg-slate-100 active:scale-[0.99]"
               >
                 Ir até aqui
               </button>
@@ -624,7 +697,7 @@ export default function TouristAppPage() {
                 href={getGoogleMapsUrl(activePoi, geo)}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full rounded-xl border border-white/12 bg-black/25 py-3 text-center font-semibold text-white transition hover:bg-white/10"
+                className="w-full rounded-2xl border border-white/12 bg-black/25 py-3.5 text-center font-semibold text-white transition hover:bg-white/10"
               >
                 Abrir no Google Maps
               </a>
@@ -633,6 +706,7 @@ export default function TouristAppPage() {
         )}
       </Modal>
 
+      {/* Modal lista */}
       <Modal open={listOpen} onClose={() => setListOpen(false)} title="Explorar pontos">
         <div className="mt-2 space-y-2">
           {loadingPois && (
@@ -651,9 +725,9 @@ export default function TouristAppPage() {
             <button
               key={poi.id}
               onClick={() => openListPoiDetails(poi)}
-              className="flex w-full items-center gap-4 rounded-[1rem] border border-transparent p-3 text-left transition hover:border-white/10 hover:bg-white/8 active:bg-white/15"
+              className="flex w-full items-center gap-4 rounded-[1.15rem] border border-transparent p-3 text-left transition hover:border-white/10 hover:bg-white/8 active:bg-white/12"
             >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-bold text-white/65">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs font-bold text-white/75">
                 {d !== null ? (d < 1000 ? Math.round(d) : `${(d / 1000).toFixed(1)}k`) : "—"}
               </div>
 
@@ -670,7 +744,7 @@ export default function TouristAppPage() {
                 target="_blank"
                 rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="shrink-0 rounded-lg border border-white/10 bg-white/6 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10"
+                className="shrink-0 rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10"
               >
                 Maps
               </a>
