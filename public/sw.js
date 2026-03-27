@@ -1,4 +1,4 @@
-const CACHE_NAME = "go-alagoas-mvp-v1";
+const CACHE_NAME = "ar-turismo-mvp-v1";
 const ASSETS = ["/", "/app", "/admin", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
