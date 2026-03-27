@@ -49,8 +49,8 @@ function bearingDegrees(lat1: number, lon1: number, lat2: number, lon2: number) 
 const Icons = {
   Camera: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
-      <circle cx="12" cy="13" r="3"/>
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+      <circle cx="12" cy="13" r="3" />
     </svg>
   ),
   CameraOff: () => (
@@ -63,30 +63,30 @@ const Icons = {
   ),
   Compass: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
     </svg>
   ),
   List: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="8" y1="6" x2="21" y2="6"/>
-      <line x1="8" y1="12" x2="21" y2="12"/>
-      <line x1="8" y1="18" x2="21" y2="18"/>
-      <line x1="3" y1="6" x2="3.01" y2="6"/>
-      <line x1="3" y1="12" x2="3.01" y2="12"/>
-      <line x1="3" y1="18" x2="3.01" y2="18"/>
+      <line x1="8" y1="6" x2="21" y2="6" />
+      <line x1="8" y1="12" x2="21" y2="12" />
+      <line x1="8" y1="18" x2="21" y2="18" />
+      <line x1="3" y1="6" x2="3.01" y2="6" />
+      <line x1="3" y1="12" x2="3.01" y2="12" />
+      <line x1="3" y1="18" x2="3.01" y2="18" />
     </svg>
   ),
   MapPin: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-      <circle cx="12" cy="10" r="3"/>
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
     </svg>
   ),
   X: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18"/>
-      <line x1="6" y1="6" x2="18" y2="18"/>
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   ),
   Map: () => (
@@ -98,9 +98,9 @@ const Icons = {
   ),
   NavArrow: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-      <path d="M12 2L4.5 20.29C4.24 20.89 4.87 21.5 5.48 21.2L12 18L18.52 21.2C19.13 21.5 19.76 20.89 19.5 20.29L12 2Z"/>
+      <path d="M12 2L4.5 20.29C4.24 20.89 4.87 21.5 5.48 21.2L12 18L18.52 21.2C19.13 21.5 19.76 20.89 19.5 20.29L12 2Z" />
     </svg>
-  )
+  ),
 };
 
 export default function TouristAppPage() {
@@ -127,9 +127,10 @@ export default function TouristAppPage() {
   const compassEnabledRef = useRef(false);
   const compassHandlerRef = useRef<((ev: DeviceOrientationEvent) => void) | null>(null);
 
-  const radiusMeters = 500;
+  // 80m = somente para exibição AR/cards na tela
+  const radiusMeters = 80;
 
-  // --- 1. LOAD POIS ---
+  // --- LOAD POIS ---
   useEffect(() => {
     let alive = true;
 
@@ -155,12 +156,13 @@ export default function TouristAppPage() {
     }
 
     load();
+
     return () => {
       alive = false;
     };
   }, []);
 
-  // --- 2. GEOLOCATION ---
+  // --- GEOLOCATION ---
   useEffect(() => {
     if (!("geolocation" in navigator)) {
       setGeoErr("GPS indisponível");
@@ -187,7 +189,7 @@ export default function TouristAppPage() {
     return () => navigator.geolocation.clearWatch(id);
   }, []);
 
-  // --- 3. CAMERA CONTROL ---
+  // --- CAMERA CONTROL ---
   async function startCamera() {
     try {
       setCameraErr(null);
@@ -250,7 +252,7 @@ export default function TouristAppPage() {
     setCameraOn(false);
   }
 
-  // --- 4. COMPASS CONTROL ---
+  // --- COMPASS CONTROL ---
   async function enableCompass() {
     if (compassEnabledRef.current) return;
 
@@ -316,12 +318,12 @@ export default function TouristAppPage() {
       .sort((a, b) => a.d - b.d);
   }, [geo, pois]);
 
+  // somente pontos dentro de 80m para AR na tela
   const inRange = useMemo(() => {
     return nearby.filter((x) => x.d <= radiusMeters).slice(0, 3);
   }, [nearby]);
 
-  // LISTA COMPLETA DA CIDADE
-  // mostra todos os POIs cadastrados; se tiver GPS, ordena por distância
+  // todos os pontos cadastrados para o modal "Explorar Pontos"
   const cityPois = useMemo(() => {
     if (!geo) {
       return pois.map((poi) => ({ poi, d: null as number | null }));
@@ -383,9 +385,7 @@ export default function TouristAppPage() {
 
         <video
           ref={videoRef}
-          className={`h-full w-full object-cover transition-opacity duration-700 ${
-            cameraOn ? "opacity-100" : "opacity-0"
-          }`}
+          className={`h-full w-full object-cover transition-opacity duration-700 ${cameraOn ? "opacity-100" : "opacity-0"}`}
           playsInline
           muted
           autoPlay
@@ -580,11 +580,7 @@ export default function TouristAppPage() {
             </div>
 
             <div className="prose prose-invert prose-sm max-w-none text-white/80 leading-relaxed bg-white/5 p-4 rounded-xl border border-white/5">
-              {modalHtml ? (
-                <div dangerouslySetInnerHTML={{ __html: modalHtml }} />
-              ) : (
-                "Sem descrição."
-              )}
+              {modalHtml ? <div dangerouslySetInnerHTML={{ __html: modalHtml }} /> : "Sem descrição."}
             </div>
 
             <div className="mt-6 flex gap-3">
