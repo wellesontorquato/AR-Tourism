@@ -227,12 +227,15 @@ export default function TouristAppPage() {
       setHeadingErr(null);
 
       // @ts-ignore
+      const DeviceOrientationEventIOS = DeviceOrientationEvent as typeof DeviceOrientationEvent & {
+        requestPermission?: () => Promise<"granted" | "denied">;
+      };
+
       if (
         typeof DeviceOrientationEvent !== "undefined" &&
-        typeof DeviceOrientationEvent.requestPermission === "function"
+        typeof DeviceOrientationEventIOS.requestPermission === "function"
       ) {
-        // @ts-ignore
-        const resp = await DeviceOrientationEvent.requestPermission();
+        const resp = await DeviceOrientationEventIOS.requestPermission();
         if (resp !== "granted") {
           setHeadingErr("Bússola negada");
           return;
