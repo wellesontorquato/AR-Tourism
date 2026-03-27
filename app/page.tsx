@@ -158,8 +158,10 @@ export default function Home() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-base leading-8 text-white/85 sm:text-lg">
-                Explore praias, orlas, lagoas, cultura e experiências locais em
-                uma plataforma visual, leve e pronta para evoluir para app.
+                Descubra Alagoas de forma mais imersiva: das águas cristalinas
+                de Pajuçara e Maragogi às lagoas tranquilas da região sul,
+                passando por cultura, gastronomia e experiências únicas que só
+                o estado oferece.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -201,7 +203,9 @@ export default function Home() {
                         Pajuçara e arredores
                       </h3>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        Perfeito para receber foto real da orla e jangadas.
+                        As piscinas naturais de Pajuçara são um dos
+                        cartões-postais de Maceió, com acesso por jangadas e
+                        águas transparentes ideais para banho e mergulho leve.
                       </p>
                     </div>
                   </div>
@@ -228,7 +232,9 @@ export default function Home() {
                         Lagoas e paisagens
                       </h3>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        Ideal para dar diversidade e identidade ao projeto.
+                        A Lagoa do Mundaú e a Lagoa Manguaba formam um dos
+                        cenários mais icônicos do estado, com passeios de barco,
+                        pôr do sol incrível e contato direto com a cultura local.
                       </p>
                     </div>
                   </div>
@@ -247,16 +253,17 @@ export default function Home() {
               explorar
             </span>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-              Uma experiência turística mais bonita, clara e preparada para o mobile.
+              Explore Alagoas com uma visão mais completa do destino.
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600">
-              O Go Alagoas nasce com visual premium, estrutura flexível e blocos
-              visuais que valorizam o que o estado tem de mais marcante.
+              De praias urbanas a destinos paradisíacos como Maragogi e São
+              Miguel dos Milagres, Alagoas reúne natureza, cultura e
+              experiências autênticas em um só lugar.
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
+          <div className="mt-12 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3">
+            <article className="min-w-[85%] snap-start rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)] md:min-w-0">
               <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-50 text-2xl">
                 📍
               </div>
@@ -264,11 +271,13 @@ export default function Home() {
                 Descoberta por localização
               </h3>
               <p className="mt-3 text-sm leading-7 text-slate-600">
-                Lugares próximos, contexto e descoberta de pontos turísticos ao redor.
+                Encontre pontos turísticos próximos como Ponta Verde, Jatiúca e
+                Pajuçara, com acesso fácil, estrutura e ótima experiência para
+                quem visita Maceió.
               </p>
             </article>
 
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
+            <article className="min-w-[85%] snap-start rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)] md:min-w-0">
               <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-2xl">
                 🌴
               </div>
@@ -276,11 +285,13 @@ export default function Home() {
                 Identidade visual local
               </h3>
               <p className="mt-3 text-sm leading-7 text-slate-600">
-                Cores, fotos e respiro inspirados no mar, nas lagoas e na luz de Alagoas.
+                Cenários com mar em tons de azul e verde, coqueirais extensos e
+                clima tropical fazem de Alagoas um dos destinos mais fotogênicos
+                do Brasil.
               </p>
             </article>
 
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
+            <article className="min-w-[85%] snap-start rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)] md:min-w-0">
               <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-2xl">
                 📱
               </div>
@@ -288,7 +299,9 @@ export default function Home() {
                 Estrutura pronta para app
               </h3>
               <p className="mt-3 text-sm leading-7 text-slate-600">
-                Layout pensado para migrar depois para uma experiência mobile mais imersiva.
+                Pensado para uma navegação simples e visual, ideal para quem
+                busca praticidade ao planejar passeios e descobrir novos
+                lugares.
               </p>
             </article>
           </div>
@@ -307,10 +320,11 @@ export default function Home() {
                 coleções visuais
               </span>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-                Blocos prontos para receber fotos reais de Alagoas.
+                Destinos, paisagens e experiências que representam Alagoas.
               </h2>
               <p className="mt-4 text-base leading-8 text-slate-600">
-                Aqui você pode destacar paisagens, praias, lagoas, cultura e experiências locais.
+                Uma curadoria visual para destacar praias, lagoas, patrimônio e
+                a atmosfera única do turismo alagoano.
               </p>
             </div>
 
@@ -322,8 +336,8 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            <article className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
+          <div className="mt-10 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3">
+            <article className="min-w-[85%] snap-start overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)] md:min-w-0">
               <div
                 className="aspect-[4/5] bg-cover bg-center"
                 style={{
@@ -332,14 +346,18 @@ export default function Home() {
                 }}
               />
               <div className="p-6">
-                <h3 className="text-lg font-black text-slate-900">Praias e orlas</h3>
+                <h3 className="text-lg font-black text-slate-900">
+                  Praias e orlas
+                </h3>
                 <p className="mt-3 text-sm leading-7 text-slate-600">
-                  Use imagens amplas com mar cristalino, coqueiros, areia clara e jangadas.
+                  Maragogi, São Miguel dos Milagres e Paripueira oferecem
+                  algumas das águas mais cristalinas do Brasil, com piscinas
+                  naturais e clima tranquilo.
                 </p>
               </div>
             </article>
 
-            <article className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
+            <article className="min-w-[85%] snap-start overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)] md:min-w-0">
               <div
                 className="aspect-[4/5] bg-cover bg-center"
                 style={{
@@ -348,14 +366,18 @@ export default function Home() {
                 }}
               />
               <div className="p-6">
-                <h3 className="text-lg font-black text-slate-900">Lagoas e natureza</h3>
+                <h3 className="text-lg font-black text-slate-900">
+                  Lagoas e natureza
+                </h3>
                 <p className="mt-3 text-sm leading-7 text-slate-600">
-                  Traga variedade visual mostrando natureza, água, vegetação e horizontes.
+                  As lagoas de Alagoas proporcionam experiências únicas com
+                  passeios de barco, culinária local e paisagens inesquecíveis
+                  ao entardecer.
                 </p>
               </div>
             </article>
 
-            <article className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
+            <article className="min-w-[85%] snap-start overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)] md:min-w-0">
               <div
                 className="aspect-[4/5] bg-cover bg-center"
                 style={{
@@ -364,9 +386,12 @@ export default function Home() {
                 }}
               />
               <div className="p-6">
-                <h3 className="text-lg font-black text-slate-900">Cultura e história</h3>
+                <h3 className="text-lg font-black text-slate-900">
+                  Cultura e história
+                </h3>
                 <p className="mt-3 text-sm leading-7 text-slate-600">
-                  Ideal para centro histórico, artesanato, arquitetura e experiências locais.
+                  O centro histórico de Marechal Deodoro e o artesanato local
+                  revelam a identidade cultural rica e autêntica do estado.
                 </p>
               </div>
             </article>
@@ -385,8 +410,8 @@ export default function Home() {
               Visual com proporção de app e navegação mais envolvente.
             </h2>
             <p className="mt-5 text-base leading-8 text-slate-600">
-              Os blocos ao lado simulam melhor como o projeto pode ser percebido
-              no celular, ajudando a vender a ideia de produto digital.
+              A proposta é tornar a descoberta de Alagoas mais intuitiva, visual
+              e próxima da realidade de um app moderno de turismo.
             </p>
 
             <div className="mt-8 grid gap-4">
@@ -395,7 +420,8 @@ export default function Home() {
                   Estrutura de descoberta
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Destaques, contexto e conteúdo turístico em um fluxo visual simples.
+                  Explore roteiros como litoral norte (Maragogi e Milagres) ou
+                  litoral sul (Francês e Barra de São Miguel) com facilidade.
                 </p>
               </div>
 
@@ -404,7 +430,8 @@ export default function Home() {
                   Mais cara de produto
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Os cards verticais ajudam a comunicar a futura experiência mobile.
+                  Interface pensada para destacar imagens reais e ajudar o
+                  usuário a decidir rapidamente onde ir.
                 </p>
               </div>
             </div>
@@ -428,7 +455,8 @@ export default function Home() {
                       Rota turística
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Ideal para foto vertical com bastante impacto visual.
+                      Roteiro pelo litoral norte com destaque para piscinas
+                      naturais e praias de águas cristalinas.
                     </p>
                   </div>
                 </div>
@@ -452,7 +480,8 @@ export default function Home() {
                       Experiência local
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Perfeito para transmitir lifestyle e conexão com o lugar.
+                      Experiência local com gastronomia, passeios de barco e
+                      cultura regional.
                     </p>
                   </div>
                 </div>
@@ -473,11 +502,13 @@ export default function Home() {
               sobre o projeto
             </span>
             <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-              Uma base visual quase pronta para publicar e evoluir depois para app.
+              Uma base visual quase pronta para publicar e evoluir depois para
+              app.
             </h2>
             <p className="mt-5 text-base leading-8 text-slate-300">
-              Com boas imagens reais de Alagoas, essa home já ganha cara de
-              produto turístico premium e comunica muito melhor o valor da ideia.
+              O Go Alagoas nasce para valorizar o turismo local com uma
+              experiência digital moderna, destacando o que o estado tem de
+              melhor de forma visual e acessível.
             </p>
           </div>
 
