@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "start": "sh -c \"npx prisma migrate deploy && next start -p $PORT\"",
+    "start": "sh -c \"npx prisma migrate deploy && npx prisma db seed && next start -p $PORT\"",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
