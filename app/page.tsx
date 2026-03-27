@@ -3,13 +3,78 @@
 import Link from "next/link";
 import { useState } from "react";
 
+const heroHighlights = [
+  {
+    title: "Piscinas naturais de Pajuçara",
+    text: "Um dos cenários mais conhecidos de Maceió, com jangadas, mar claro e experiência clássica para quem visita a capital.",
+    image: "/images/alagoas/card-pajucara.jpg",
+    tag: "Maceió",
+  },
+  {
+    title: "Orla de Ponta Verde",
+    text: "Uma das praias urbanas mais emblemáticas de Maceió, perfeita para caminhada, paisagem e vida à beira-mar.",
+    image: "/images/alagoas/card-ponta-verde.jpg",
+    tag: "Orla urbana",
+  },
+  {
+    title: "Marechal Deodoro histórica",
+    text: "Primeira capital de Alagoas e cidade ligada à história de Deodoro da Fonseca, unindo patrimônio e identidade local.",
+    image: "/images/alagoas/card-marechal.jpg",
+    tag: "História",
+  },
+];
+
+const collections = [
+  {
+    title: "Pajuçara",
+    subtitle: "Piscinas naturais e jangadas",
+    description:
+      "Pajuçara reúne orla urbana, jangadas e o passeio até as piscinas naturais, um dos cartões-postais mais lembrados de Maceió.",
+    image: "/images/alagoas/colecao-pajucara.jpg",
+    pill: "Mar e experiência",
+  },
+  {
+    title: "Ponta Verde e Jatiúca",
+    subtitle: "Praias urbanas de Maceió",
+    description:
+      "O trecho urbano mais famoso da capital reúne praia, calçadão, gastronomia e uma paisagem que ajuda a definir a imagem turística da cidade.",
+    image: "/images/alagoas/colecao-orla-maceio.jpg",
+    pill: "Orla da capital",
+  },
+  {
+    title: "Marechal Deodoro",
+    subtitle: "Centro histórico e memória",
+    description:
+      "Além da Praia do Francês, o município carrega valor histórico por ter sido a primeira capital do estado e berço de Deodoro da Fonseca.",
+    image: "/images/alagoas/colecao-marechal.jpg",
+    pill: "Cultura e história",
+  },
+];
+
+const experienceCards = [
+  {
+    title: "Explorar perto de você",
+    text: "Abra a experiência e descubra pontos turísticos ao redor com uma navegação mais visual e intuitiva.",
+    icon: "📍",
+  },
+  {
+    title: "Descobrir lugares marcantes",
+    text: "Praias, orlas, centros históricos e experiências locais organizados de forma mais bonita e direta.",
+    icon: "🌊",
+  },
+  {
+    title: "Base pronta para app",
+    text: "A linguagem visual e os blocos já apontam para uma evolução natural da plataforma para o mobile.",
+    icon: "📱",
+  },
+];
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <main id="top" className="min-h-screen bg-[#f7fbfc] text-slate-800">
-      {/* HEADER */}
-      <header className="sticky top-0 z-50 border-b border-white/20 bg-white/70 backdrop-blur-xl">
+    <main id="top" className="min-h-screen bg-[#f6fbfc] text-slate-800">
+      <header className="sticky top-0 z-50 border-b border-white/20 bg-white/75 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 via-sky-500 to-emerald-500 text-white shadow-sm">
@@ -27,28 +92,16 @@ export default function Home() {
           </Link>
 
           <nav className="hidden items-center gap-8 md:flex">
-            <a
-              href="#explorar"
-              className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
-            >
+            <a href="#explorar" className="text-sm font-medium text-slate-600 transition hover:text-slate-900">
               Explorar
             </a>
-            <a
-              href="#colecoes"
-              className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
-            >
+            <a href="#colecoes" className="text-sm font-medium text-slate-600 transition hover:text-slate-900">
               Coleções
             </a>
-            <a
-              href="#experiencia"
-              className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
-            >
+            <a href="#experiencia" className="text-sm font-medium text-slate-600 transition hover:text-slate-900">
               Experiência
             </a>
-            <a
-              href="#sobre"
-              className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
-            >
+            <a href="#sobre" className="text-sm font-medium text-slate-600 transition hover:text-slate-900">
               Sobre
             </a>
           </nav>
@@ -135,31 +188,31 @@ export default function Home() {
         )}
       </header>
 
-      {/* HERO */}
       <section className="relative overflow-hidden">
         <div
           className="relative min-h-[92vh] bg-cover bg-center"
           style={{
             backgroundImage:
-              "linear-gradient(to bottom, rgba(8,15,28,0.35), rgba(8,15,28,0.55)), url('/images/alagoas/hero-pajucara.jpg')",
+              "linear-gradient(to bottom, rgba(8,15,28,0.28), rgba(8,15,28,0.58)), url('/images/alagoas/hero-pajucara.jpg')",
           }}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(34,211,238,0.10),transparent_24%)]" />
 
-          <div className="relative mx-auto grid min-h-[92vh] max-w-7xl items-end gap-10 px-4 pb-10 pt-20 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:pb-14">
-            <div className="max-w-3xl text-white">
-              <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] backdrop-blur-md">
-                descubra alagoas com mais profundidade
+          <div className="relative mx-auto grid min-h-[92vh] max-w-7xl gap-10 px-4 pb-10 pt-20 sm:px-6 lg:grid-cols-[1.02fr_.98fr] lg:px-8 lg:pb-14">
+            <div className="flex flex-col justify-end text-white">
+              <span className="inline-flex w-fit rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] backdrop-blur-md">
+                alagoas com mais beleza, contexto e descoberta
               </span>
 
-              <h1 className="mt-6 text-4xl font-black leading-[1.02] tracking-tight sm:text-5xl lg:text-7xl">
-                Turismo com cara de
-                <span className="block text-cyan-200">Alagoas de verdade</span>
+              <h1 className="mt-6 max-w-4xl text-4xl font-black leading-[1.02] tracking-tight sm:text-5xl lg:text-7xl">
+                Explore praias, história e experiências de
+                <span className="block text-cyan-200">Alagoas de um jeito mais vivo</span>
               </h1>
 
               <p className="mt-6 max-w-2xl text-base leading-8 text-white/85 sm:text-lg">
-                Explore praias, orlas, lagoas, cultura e experiências locais em
-                uma plataforma visual, leve e pronta para evoluir para app.
+                Do mar de Pajuçara ao patrimônio de Marechal Deodoro, o Go Alagoas
+                reúne lugares marcantes do estado em uma experiência pensada para
+                quem quer descobrir mais no celular.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -174,72 +227,76 @@ export default function Home() {
                   href="#colecoes"
                   className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/15"
                 >
-                  Ver coleções
+                  Ver lugares em destaque
                 </a>
               </div>
             </div>
 
-            {/* Cards estilo app */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-              <article className="rounded-[2rem] border border-white/15 bg-white/12 p-4 text-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] backdrop-blur-xl">
-                <div
-                  className="aspect-[9/14] overflow-hidden rounded-[1.5rem] bg-cover bg-center"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(to bottom, rgba(15,23,42,0.05), rgba(15,23,42,0.35)), url('/images/alagoas/card-praia.jpg')",
-                  }}
-                >
-                  <div className="flex h-full flex-col justify-between p-4">
-                    <span className="w-fit rounded-full bg-white/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700">
-                      praia
-                    </span>
-                    <div className="rounded-[1.25rem] bg-white/85 p-4 text-slate-900 backdrop-blur">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        em destaque
-                      </p>
-                      <h3 className="mt-2 text-lg font-black">
-                        Pajuçara e arredores
-                      </h3>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        Perfeito para receber foto real da orla e jangadas.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </article>
+            <div className="self-end lg:pb-2">
+              <div className="md:hidden">
+                <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {heroHighlights.map((item) => (
+                    <article
+                      key={item.title}
+                      className="min-w-[83%] snap-center rounded-[2rem] border border-white/15 bg-white/12 p-4 text-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] backdrop-blur-xl"
+                    >
+                      <div
+                        className="aspect-[9/14] overflow-hidden rounded-[1.5rem] bg-cover bg-center"
+                        style={{
+                          backgroundImage: `linear-gradient(to bottom, rgba(15,23,42,0.05), rgba(15,23,42,0.38)), url('${item.image}')`,
+                        }}
+                      >
+                        <div className="flex h-full flex-col justify-between p-4">
+                          <span className="w-fit rounded-full bg-white/88 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700">
+                            {item.tag}
+                          </span>
 
-              <article className="rounded-[2rem] border border-white/15 bg-white/12 p-4 text-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] backdrop-blur-xl">
-                <div
-                  className="aspect-[9/14] overflow-hidden rounded-[1.5rem] bg-cover bg-center"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(to bottom, rgba(15,23,42,0.05), rgba(15,23,42,0.35)), url('/images/alagoas/card-lagoa.jpg')",
-                  }}
-                >
-                  <div className="flex h-full flex-col justify-between p-4">
-                    <span className="w-fit rounded-full bg-white/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700">
-                      natureza
-                    </span>
-                    <div className="rounded-[1.25rem] bg-white/85 p-4 text-slate-900 backdrop-blur">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        coleção visual
-                      </p>
-                      <h3 className="mt-2 text-lg font-black">
-                        Lagoas e paisagens
-                      </h3>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        Ideal para dar diversidade e identidade ao projeto.
-                      </p>
-                    </div>
-                  </div>
+                          <div className="rounded-[1.25rem] bg-white/88 p-4 text-slate-900 backdrop-blur">
+                            <h3 className="text-lg font-black">{item.title}</h3>
+                            <p className="mt-2 text-sm leading-6 text-slate-600">
+                              {item.text}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
                 </div>
-              </article>
+              </div>
+
+              <div className="hidden gap-4 md:grid md:grid-cols-2">
+                {heroHighlights.slice(0, 2).map((item) => (
+                  <article
+                    key={item.title}
+                    className="rounded-[2rem] border border-white/15 bg-white/12 p-4 text-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] backdrop-blur-xl"
+                  >
+                    <div
+                      className="aspect-[9/14] overflow-hidden rounded-[1.5rem] bg-cover bg-center"
+                      style={{
+                        backgroundImage: `linear-gradient(to bottom, rgba(15,23,42,0.05), rgba(15,23,42,0.38)), url('${item.image}')`,
+                      }}
+                    >
+                      <div className="flex h-full flex-col justify-between p-4">
+                        <span className="w-fit rounded-full bg-white/88 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700">
+                          {item.tag}
+                        </span>
+
+                        <div className="rounded-[1.25rem] bg-white/88 p-4 text-slate-900 backdrop-blur">
+                          <h3 className="text-lg font-black">{item.title}</h3>
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            {item.text}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* EXPLORAR */}
       <section id="explorar" className="py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
@@ -247,55 +304,56 @@ export default function Home() {
               explorar
             </span>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-              Uma experiência turística mais bonita, clara e preparada para o mobile.
+              Uma forma mais clara de apresentar o melhor de Alagoas no mobile.
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600">
-              O Go Alagoas nasce com visual premium, estrutura flexível e blocos
-              visuais que valorizam o que o estado tem de mais marcante.
+              A estrutura abaixo já comunica descoberta, contexto turístico e uma
+              linguagem visual pronta para app.
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
-              <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-50 text-2xl">
-                📍
-              </div>
-              <h3 className="text-lg font-black text-slate-900">
-                Descoberta por localização
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-slate-600">
-                Lugares próximos, contexto e descoberta de pontos turísticos ao redor.
-              </p>
-            </article>
+          <div className="mt-10 md:hidden">
+            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {experienceCards.map((card) => (
+                <article
+                  key={card.title}
+                  className="min-w-[85%] snap-center rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)]"
+                >
+                  <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-50 text-2xl">
+                    {card.icon}
+                  </div>
+                  <h3 className="text-lg font-black text-slate-900">{card.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-600">{card.text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
 
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
-              <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-2xl">
-                🌴
-              </div>
-              <h3 className="text-lg font-black text-slate-900">
-                Identidade visual local
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-slate-600">
-                Cores, fotos e respiro inspirados no mar, nas lagoas e na luz de Alagoas.
-              </p>
-            </article>
-
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
-              <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-2xl">
-                📱
-              </div>
-              <h3 className="text-lg font-black text-slate-900">
-                Estrutura pronta para app
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-slate-600">
-                Layout pensado para migrar depois para uma experiência mobile mais imersiva.
-              </p>
-            </article>
+          <div className="mt-12 hidden gap-6 md:grid md:grid-cols-3">
+            {experienceCards.map((card, index) => (
+              <article
+                key={card.title}
+                className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.05)]"
+              >
+                <div
+                  className={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl text-2xl ${
+                    index === 0
+                      ? "bg-cyan-50"
+                      : index === 1
+                      ? "bg-emerald-50"
+                      : "bg-amber-50"
+                  }`}
+                >
+                  {card.icon}
+                </div>
+                <h3 className="text-lg font-black text-slate-900">{card.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{card.text}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* COLEÇÕES */}
       <section
         id="colecoes"
         className="bg-[linear-gradient(180deg,#ffffff_0%,#effbfc_100%)] py-20 sm:py-24"
@@ -307,10 +365,11 @@ export default function Home() {
                 coleções visuais
               </span>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-                Blocos prontos para receber fotos reais de Alagoas.
+                Lugares reais para transformar a home em uma vitrine de Alagoas.
               </h2>
               <p className="mt-4 text-base leading-8 text-slate-600">
-                Aqui você pode destacar paisagens, praias, lagoas, cultura e experiências locais.
+                Em vez de blocos genéricos, aqui entram destinos que já comunicam
+                mar, cidade, história e identidade.
               </p>
             </div>
 
@@ -322,59 +381,58 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            <article className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
-              <div
-                className="aspect-[4/5] bg-cover bg-center"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(to bottom, rgba(15,23,42,0.05), rgba(15,23,42,0.28)), url('/images/alagoas/colecao-praias.jpg')",
-                }}
-              />
-              <div className="p-6">
-                <h3 className="text-lg font-black text-slate-900">Praias e orlas</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600">
-                  Use imagens amplas com mar cristalino, coqueiros, areia clara e jangadas.
-                </p>
-              </div>
-            </article>
+          <div className="mt-10 md:hidden">
+            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {collections.map((item) => (
+                <article
+                  key={item.title}
+                  className="min-w-[86%] snap-center overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)]"
+                >
+                  <div
+                    className="aspect-[4/5] bg-cover bg-center"
+                    style={{
+                      backgroundImage: `linear-gradient(to bottom, rgba(15,23,42,0.05), rgba(15,23,42,0.28)), url('${item.image}')`,
+                    }}
+                  />
+                  <div className="p-6">
+                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                      {item.pill}
+                    </span>
+                    <h3 className="mt-3 text-xl font-black text-slate-900">{item.title}</h3>
+                    <p className="mt-1 text-sm font-medium text-slate-500">{item.subtitle}</p>
+                    <p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
 
-            <article className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
-              <div
-                className="aspect-[4/5] bg-cover bg-center"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(to bottom, rgba(15,23,42,0.05), rgba(15,23,42,0.28)), url('/images/alagoas/colecao-lagoas.jpg')",
-                }}
-              />
-              <div className="p-6">
-                <h3 className="text-lg font-black text-slate-900">Lagoas e natureza</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600">
-                  Traga variedade visual mostrando natureza, água, vegetação e horizontes.
-                </p>
-              </div>
-            </article>
-
-            <article className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)]">
-              <div
-                className="aspect-[4/5] bg-cover bg-center"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(to bottom, rgba(15,23,42,0.05), rgba(15,23,42,0.28)), url('/images/alagoas/colecao-cultura.jpg')",
-                }}
-              />
-              <div className="p-6">
-                <h3 className="text-lg font-black text-slate-900">Cultura e história</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600">
-                  Ideal para centro histórico, artesanato, arquitetura e experiências locais.
-                </p>
-              </div>
-            </article>
+          <div className="mt-10 hidden gap-6 lg:grid lg:grid-cols-3">
+            {collections.map((item) => (
+              <article
+                key={item.title}
+                className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.05)]"
+              >
+                <div
+                  className="aspect-[4/5] bg-cover bg-center"
+                  style={{
+                    backgroundImage: `linear-gradient(to bottom, rgba(15,23,42,0.05), rgba(15,23,42,0.28)), url('${item.image}')`,
+                  }}
+                />
+                <div className="p-6">
+                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                    {item.pill}
+                  </span>
+                  <h3 className="mt-3 text-xl font-black text-slate-900">{item.title}</h3>
+                  <p className="mt-1 text-sm font-medium text-slate-500">{item.subtitle}</p>
+                  <p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* EXPERIÊNCIA */}
       <section id="experiencia" className="py-20 sm:py-24">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[.95fr_1.05fr] lg:px-8">
           <div>
@@ -382,41 +440,93 @@ export default function Home() {
               experiência
             </span>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-              Visual com proporção de app e navegação mais envolvente.
+              Visual com proporção de app e mais conexão com os destinos.
             </h2>
             <p className="mt-5 text-base leading-8 text-slate-600">
-              Os blocos ao lado simulam melhor como o projeto pode ser percebido
-              no celular, ajudando a vender a ideia de produto digital.
+              Esses cards ajudam a vender melhor a ideia do Go Alagoas como um
+              produto digital turístico e não só como um site institucional.
             </p>
 
             <div className="mt-8 grid gap-4">
               <div className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
                 <p className="text-sm font-bold text-slate-900">
-                  Estrutura de descoberta
+                  Descoberta mais visual
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Destaques, contexto e conteúdo turístico em um fluxo visual simples.
+                  Fotos fortes e blocos verticais ajudam o usuário a entrar no clima do lugar.
                 </p>
               </div>
 
               <div className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
                 <p className="text-sm font-bold text-slate-900">
-                  Mais cara de produto
+                  Melhor leitura no celular
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Os cards verticais ajudam a comunicar a futura experiência mobile.
+                  No mobile, os cards funcionam como carrosséis arrastáveis com foco em imagem.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="md:hidden">
+            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <article className="min-w-[84%] snap-center rounded-[2rem] border border-slate-200 bg-white p-4 shadow-[0_12px_35px_rgba(15,23,42,0.06)]">
+                <div
+                  className="aspect-[9/16] overflow-hidden rounded-[1.5rem] bg-cover bg-center"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(to bottom, rgba(15,23,42,0.08), rgba(15,23,42,0.35)), url('/images/alagoas/app-card-pajucara.jpg')",
+                  }}
+                >
+                  <div className="flex h-full flex-col justify-end p-4">
+                    <div className="rounded-[1.25rem] bg-white/90 p-4 backdrop-blur-md">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        destaque
+                      </p>
+                      <h3 className="mt-2 text-lg font-black text-slate-900">
+                        Pajuçara no mobile
+                      </h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        Um card vertical para comunicar mar, jangadas e descoberta.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article className="min-w-[84%] snap-center rounded-[2rem] border border-slate-200 bg-white p-4 shadow-[0_12px_35px_rgba(15,23,42,0.06)]">
+                <div
+                  className="aspect-[9/16] overflow-hidden rounded-[1.5rem] bg-cover bg-center"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(to bottom, rgba(15,23,42,0.08), rgba(15,23,42,0.35)), url('/images/alagoas/app-card-marechal.jpg')",
+                  }}
+                >
+                  <div className="flex h-full flex-col justify-end p-4">
+                    <div className="rounded-[1.25rem] bg-white/90 p-4 backdrop-blur-md">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        história
+                      </p>
+                      <h3 className="mt-2 text-lg font-black text-slate-900">
+                        Marechal Deodoro
+                      </h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        Patrimônio, centro histórico e identidade cultural no formato de app.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div className="hidden gap-5 sm:grid sm:grid-cols-2">
             <article className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-[0_12px_35px_rgba(15,23,42,0.06)]">
               <div
                 className="aspect-[9/16] overflow-hidden rounded-[1.5rem] bg-cover bg-center"
                 style={{
                   backgroundImage:
-                    "linear-gradient(to bottom, rgba(15,23,42,0.08), rgba(15,23,42,0.35)), url('/images/alagoas/app-card-1.jpg')",
+                    "linear-gradient(to bottom, rgba(15,23,42,0.08), rgba(15,23,42,0.35)), url('/images/alagoas/app-card-pajucara.jpg')",
                 }}
               >
                 <div className="flex h-full flex-col justify-end p-4">
@@ -425,10 +535,10 @@ export default function Home() {
                       destaque
                     </p>
                     <h3 className="mt-2 text-lg font-black text-slate-900">
-                      Rota turística
+                      Pajuçara no mobile
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Ideal para foto vertical com bastante impacto visual.
+                      Um card vertical para comunicar mar, jangadas e descoberta.
                     </p>
                   </div>
                 </div>
@@ -440,19 +550,19 @@ export default function Home() {
                 className="aspect-[9/16] overflow-hidden rounded-[1.5rem] bg-cover bg-center"
                 style={{
                   backgroundImage:
-                    "linear-gradient(to bottom, rgba(15,23,42,0.08), rgba(15,23,42,0.35)), url('/images/alagoas/app-card-2.jpg')",
+                    "linear-gradient(to bottom, rgba(15,23,42,0.08), rgba(15,23,42,0.35)), url('/images/alagoas/app-card-marechal.jpg')",
                 }}
               >
                 <div className="flex h-full flex-col justify-end p-4">
                   <div className="rounded-[1.25rem] bg-white/90 p-4 backdrop-blur-md">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      coleção
+                      história
                     </p>
                     <h3 className="mt-2 text-lg font-black text-slate-900">
-                      Experiência local
+                      Marechal Deodoro
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Perfeito para transmitir lifestyle e conexão com o lugar.
+                      Patrimônio, centro histórico e identidade cultural no formato de app.
                     </p>
                   </div>
                 </div>
@@ -462,7 +572,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA / SOBRE */}
       <section
         id="sobre"
         className="bg-[linear-gradient(180deg,#0f172a_0%,#132238_100%)] py-20 text-white sm:py-24"
@@ -473,11 +582,12 @@ export default function Home() {
               sobre o projeto
             </span>
             <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-              Uma base visual quase pronta para publicar e evoluir depois para app.
+              Uma home mais forte no mobile e mais coerente com o turismo de Alagoas.
             </h2>
             <p className="mt-5 text-base leading-8 text-slate-300">
-              Com boas imagens reais de Alagoas, essa home já ganha cara de
-              produto turístico premium e comunica muito melhor o valor da ideia.
+              Com imagens boas e esses blocos já preenchidos com destinos reais,
+              a apresentação fica mais profissional, mais memorável e mais próxima
+              do que um app turístico precisa comunicar.
             </p>
           </div>
 
@@ -498,7 +608,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <div>
