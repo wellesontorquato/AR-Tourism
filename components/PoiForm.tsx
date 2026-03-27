@@ -1,232 +1,216 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
-
-type PoiFormMode = "create" | "edit";
+import { useEffect, useState } from "react";
 
 export type PoiFormValues = {
-  id?: string;
   name: string;
-  description?: string | null;
-  category?: string | null;
-  address?: string | null;
-  imageUrl?: string | null;
-  arUrl?: string | null;
-  lat: number | string;
-  lng: number | string;
+  description: string;
+  category: string;
+  address: string;
+  imageUrl: string;
+  arUrl: string;
+  lat: string;
+  lng: string;
+};
+
+const initialValues: PoiFormValues = {
+  name: "",
+  description: "",
+  category: "",
+  address: "",
+  imageUrl: "",
+  arUrl: "",
+  lat: "",
+  lng: "",
+};
+
+type PoiFormProps = {
+  mode: "create" | "edit";
+  initialData?: Partial<PoiFormValues>;
+  onSubmit: (values: PoiFormValues) => Promise<void>;
+  onCancel: () => void;
+  loading?: boolean;
 };
 
 export default function PoiForm({
   mode,
-  initialValues,
-}: {
-  mode: PoiFormMode;
-  initialValues: PoiFormValues;
-}) {
-  const router = useRouter();
-
+  initialData,
+  onSubmit,
+  onCancel,
+  loading = false,
+}: PoiFormProps) {
   const [values, setValues] = useState<PoiFormValues>(initialValues);
-  const [loading, setLoading] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const isEdit = mode === "edit";
+  useEffect(() => {
+    setValues({
+      name: initialData?.name ?? "",
+      description: initialData?.description ?? "",
+      category: initialData?.category ?? "",
+      address: initialData?.address ?? "",
+      imageUrl: initialData?.imageUrl ?? "",
+      arUrl: initialData?.arUrl ?? "",
+      lat: initialData?.lat ?? "",
+      lng: initialData?.lng ?? "",
+    });
+  }, [initialData]);
 
-  const payload = useMemo(() => {
-    const latNum =
-      typeof values.lat === "string" ? Number(values.lat) : values.lat;
-    const lngNum =
-      typeof values.lng === "string" ? Number(values.lng) : values.lng;
-
-    return {
-      name: String(values.name || "").trim(),
-      description: values.description ? String(values.description) : null,
-      category: values.category ? String(values.category) : null,
-      address: values.address ? String(values.address) : null,
-      imageUrl: values.imageUrl ? String(values.imageUrl) : null,
-      arUrl: values.arUrl ? String(values.arUrl) : null,
-      lat: latNum,
-      lng: lngNum,
-    };
-  }, [values]);
-
-  function setField<K extends keyof PoiFormValues>(key: K, val: PoiFormValues[K]) {
-    setValues((prev) => ({ ...prev, [key]: val }));
+  function updateField<K extends keyof PoiFormValues>(field: K, value: PoiFormValues[K]) {
+    setValues((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    try {
-      const url = isEdit ? `/api/pois/${values.id}` : "/api/pois";
-      const method = isEdit ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setError(data?.error || "Erro ao salvar.");
-        return;
-      }
-
-      router.push("/admin/pois");
-      router.refresh();
-    } catch {
-      setError("Erro inesperado ao salvar.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (!values.id) return;
-    const ok = confirm("Tem certeza que deseja excluir este POI?");
-    if (!ok) return;
-
-    setError(null);
-    setDeleting(true);
-
-    try {
-      const res = await fetch(`/api/pois/${values.id}`, { method: "DELETE" });
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setError(data?.error || "Erro ao excluir.");
-        return;
-      }
-
-      router.push("/admin/pois");
-      router.refresh();
-    } catch {
-      setError("Erro inesperado ao excluir.");
-    } finally {
-      setDeleting(false);
-    }
+    await onSubmit(values);
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="card space-y-4">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="md:col-span-2">
-            <label className="label">Nome *</label>
-            <input
-              className="input"
-              value={values.name}
-              onChange={(e) => setField("name", e.target.value)}
-              placeholder="Ex.: Mirante da Cidade"
-              required
-            />
-          </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field
+          label="Nome do ponto"
+          value={values.name}
+          onChange={(v) => updateField("name", v)}
+          placeholder="Ex.: Praia de Pajuçara"
+          required
+        />
 
-          <div>
-            <label className="label">Categoria</label>
-            <input
-              className="input"
-              value={values.category || ""}
-              onChange={(e) => setField("category", e.target.value)}
-              placeholder="Ex.: Natureza, História..."
-            />
-          </div>
+        <Field
+          label="Categoria"
+          value={values.category}
+          onChange={(v) => updateField("category", v)}
+          placeholder="Ex.: Praia, Museu, Igreja..."
+        />
+      </div>
 
-          <div>
-            <label className="label">Endereço</label>
-            <input
-              className="input"
-              value={values.address || ""}
-              onChange={(e) => setField("address", e.target.value)}
-              placeholder="Ex.: Centro"
-            />
-          </div>
+      <TextAreaField
+        label="Descrição"
+        value={values.description}
+        onChange={(v) => updateField("description", v)}
+        placeholder="Descreva o ponto turístico..."
+      />
 
-          <div>
-            <label className="label">Latitude *</label>
-            <input
-              className="input"
-              value={values.lat}
-              onChange={(e) => setField("lat", e.target.value)}
-              placeholder="-9.649"
-              required
-            />
-          </div>
+      <Field
+        label="Endereço"
+        value={values.address}
+        onChange={(v) => updateField("address", v)}
+        placeholder="Ex.: Av. Dr. Antônio Gouveia, Maceió - AL"
+      />
 
-          <div>
-            <label className="label">Longitude *</label>
-            <input
-              className="input"
-              value={values.lng}
-              onChange={(e) => setField("lng", e.target.value)}
-              placeholder="-35.708"
-              required
-            />
-          </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field
+          label="Latitude"
+          value={values.lat}
+          onChange={(v) => updateField("lat", v)}
+          placeholder="-9.6658"
+          required
+        />
 
-          <div className="md:col-span-2">
-            <label className="label">Descrição</label>
-            <textarea
-              className="input min-h-[110px]"
-              value={values.description || ""}
-              onChange={(e) => setField("description", e.target.value)}
-              placeholder="Breve descrição do local..."
-            />
-          </div>
+        <Field
+          label="Longitude"
+          value={values.lng}
+          onChange={(v) => updateField("lng", v)}
+          placeholder="-35.7353"
+          required
+        />
+      </div>
 
-          <div className="md:col-span-2">
-            <label className="label">Image URL</label>
-            <input
-              className="input"
-              value={values.imageUrl || ""}
-              onChange={(e) => setField("imageUrl", e.target.value)}
-              placeholder="https://..."
-            />
-          </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field
+          label="URL da imagem"
+          value={values.imageUrl}
+          onChange={(v) => updateField("imageUrl", v)}
+          placeholder="https://..."
+        />
 
-          <div className="md:col-span-2">
-            <label className="label">AR URL</label>
-            <input
-              className="input"
-              value={values.arUrl || ""}
-              onChange={(e) => setField("arUrl", e.target.value)}
-              placeholder="https://..."
-            />
-          </div>
-        </div>
+        <Field
+          label="URL do conteúdo AR"
+          value={values.arUrl}
+          onChange={(v) => updateField("arUrl", v)}
+          placeholder="https://..."
+        />
+      </div>
 
-        {error ? (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
-            {error}
-          </div>
-        ) : null}
+      <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-xl bg-sky-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-sky-700 disabled:opacity-60"
+        >
+          {loading
+            ? mode === "create"
+              ? "Salvando..."
+              : "Atualizando..."
+            : mode === "create"
+            ? "Adicionar ponto"
+            : "Salvar alterações"}
+        </button>
 
-        <div className="flex items-center justify-between gap-3">
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary disabled:opacity-60"
-          >
-            {loading ? "Salvando..." : isEdit ? "Salvar alterações" : "Criar POI"}
-          </button>
-
-          {isEdit ? (
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleting}
-              className="btn btn-danger disabled:opacity-60"
-            >
-              {deleting ? "Excluindo..." : "Excluir"}
-            </button>
-          ) : null}
-        </div>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+        >
+          Cancelar
+        </button>
       </div>
     </form>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  placeholder,
+  required = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-semibold text-slate-700">
+        {label}
+      </span>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required={required}
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+      />
+    </label>
+  );
+}
+
+function TextAreaField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-semibold text-slate-700">
+        {label}
+      </span>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        rows={5}
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+      />
+    </label>
   );
 }

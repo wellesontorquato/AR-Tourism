@@ -1,70 +1,54 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-
-const navItems = [
-  {
-    label: "Dashboard",
-    href: "/admin",
-  },
-  {
-    label: "POIs",
-    href: "/admin/pois",
-  },
-  {
-    label: "Novo POI",
-    href: "/admin/pois/new",
-  },
-];
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function AdminNav() {
-  const pathname = usePathname();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   async function handleLogout() {
     try {
-      await fetch("/api/admin/logout", {
+      setLoading(true);
+
+      const res = await fetch("/api/admin/logout", {
         method: "POST",
       });
-    } finally {
-      // garante redirecionamento mesmo se der erro
+
+      if (!res.ok) {
+        alert("Não foi possível sair do painel.");
+        return;
+      }
+
       router.push("/admin/login");
       router.refresh();
+    } catch {
+      alert("Erro ao sair do painel.");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <nav className="flex flex-col gap-1">
-      {navItems.map((item) => {
-        const isActive =
-          pathname === item.href ||
-          (item.href !== "/admin" && pathname.startsWith(item.href));
+    <header className="sticky top-0 z-40 border-b border-black/10 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sky-700">
+            Go Alagoas
+          </p>
+          <h1 className="text-xl font-black text-slate-900">
+            Painel Administrativo
+          </h1>
+        </div>
 
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={[
-              "rounded-lg px-3 py-2 text-sm transition-colors",
-              isActive
-                ? "bg-sky-500/15 text-sky-400"
-                : "text-slate-300 hover:bg-slate-800 hover:text-slate-100",
-            ].join(" ")}
-          >
-            {item.label}
-          </Link>
-        );
-      })}
-
-      <div className="my-3 h-px bg-slate-800" />
-
-      <button
-        onClick={handleLogout}
-        className="rounded-lg px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10"
-      >
-        Sair
-      </button>
-    </nav>
+        <button
+          onClick={handleLogout}
+          disabled={loading}
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+        >
+          {loading ? "Saindo..." : "Sair"}
+        </button>
+      </div>
+    </header>
   );
 }

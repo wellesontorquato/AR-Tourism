@@ -4,83 +4,143 @@ import { getAdminSession } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-type Params = { params: { id: string } };
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
 
-function normalizeId(id: string) {
-  const v = String(id || "").trim();
-  return v.length ? v : null;
-}
-
-// GET /api/pois/:id  ✅ PÚBLICO
-export async function GET(_: Request, { params }: Params) {
-  const id = normalizeId(params.id);
-  if (!id) {
-    return NextResponse.json({ ok: false, error: "ID inválido" }, { status: 400 });
-  }
-
-  const poi = await prisma.poi.findUnique({ where: { id } });
-  if (!poi) {
-    return NextResponse.json({ ok: false, error: "POI não encontrado" }, { status: 404 });
-  }
-
-  return NextResponse.json({ ok: true, poi });
-}
-
-// PUT /api/pois/:id 🔒 PROTEGIDO
-export async function PUT(req: Request, { params }: Params) {
-  const session = getAdminSession();
-  if (!session) {
-    return NextResponse.json({ ok: false, error: "Não autorizado" }, { status: 401 });
-  }
-
-  const id = normalizeId(params.id);
-  if (!id) {
-    return NextResponse.json({ ok: false, error: "ID inválido" }, { status: 400 });
-  }
-
-  const body = await req.json().catch(() => ({}));
-
-  const data: Record<string, any> = {};
-  if (body?.name !== undefined) data.name = String(body.name).trim();
-  if (body?.description !== undefined) data.description = body.description ? String(body.description) : null;
-  if (body?.category !== undefined) data.category = body.category ? String(body.category) : null;
-  if (body?.address !== undefined) data.address = body.address ? String(body.address) : null;
-  if (body?.imageUrl !== undefined) data.imageUrl = body.imageUrl ? String(body.imageUrl) : null;
-  if (body?.arUrl !== undefined) data.arUrl = body.arUrl ? String(body.arUrl) : null;
-  if (body?.lat !== undefined) data.lat = Number(body.lat);
-  if (body?.lng !== undefined) data.lng = Number(body.lng);
-
-  if (data.lat !== undefined && !Number.isFinite(data.lat)) {
-    return NextResponse.json({ ok: false, error: "lat inválido" }, { status: 400 });
-  }
-  if (data.lng !== undefined && !Number.isFinite(data.lng)) {
-    return NextResponse.json({ ok: false, error: "lng inválido" }, { status: 400 });
-  }
-
+export async function GET(_: Request, { params }: RouteContext) {
   try {
-    const poi = await prisma.poi.update({ where: { id }, data });
+    const poi = await prisma.poi.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!poi) {
+      return NextResponse.json(
+        { ok: false, error: "Ponto turístico não encontrado" },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({ ok: true, poi });
-  } catch {
-    return NextResponse.json({ ok: false, error: "POI não encontrado" }, { status: 404 });
+  } catch (error) {
+    console.error("ERRO GET /api/pois/[id]:", error);
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Erro ao buscar ponto turístico",
+        details: error instanceof Error ? error.message : "Erro desconhecido",
+      },
+      { status: 500 }
+    );
   }
 }
 
-// DELETE /api/pois/:id 🔒 PROTEGIDO
-export async function DELETE(_: Request, { params }: Params) {
-  const session = getAdminSession();
-  if (!session) {
-    return NextResponse.json({ ok: false, error: "Não autorizado" }, { status: 401 });
-  }
-
-  const id = normalizeId(params.id);
-  if (!id) {
-    return NextResponse.json({ ok: false, error: "ID inválido" }, { status: 400 });
-  }
-
+export async function PATCH(req: Request, { params }: RouteContext) {
   try {
-    await prisma.poi.delete({ where: { id } });
+    const session = getAdminSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { ok: false, error: "Não autorizado" },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json().catch(() => ({}));
+
+    const name = String(body?.name || "").trim();
+    const lat = Number(body?.lat);
+    const lng = Number(body?.lng);
+
+    if (!name || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return NextResponse.json(
+        { ok: false, error: "Campos obrigatórios: name, lat, lng" },
+        { status: 400 }
+      );
+    }
+
+    const poiExists = await prisma.poi.findUnique({
+      where: { id: params.id },
+      select: { id: true },
+    });
+
+    if (!poiExists) {
+      return NextResponse.json(
+        { ok: false, error: "Ponto turístico não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    const poi = await prisma.poi.update({
+      where: { id: params.id },
+      data: {
+        name,
+        description: body?.description ? String(body.description) : null,
+        category: body?.category ? String(body.category) : null,
+        address: body?.address ? String(body.address) : null,
+        imageUrl: body?.imageUrl ? String(body.imageUrl) : null,
+        arUrl: body?.arUrl ? String(body.arUrl) : null,
+        lat,
+        lng,
+      },
+    });
+
+    return NextResponse.json({ ok: true, poi });
+  } catch (error) {
+    console.error("ERRO PATCH /api/pois/[id]:", error);
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Erro ao atualizar ponto turístico",
+        details: error instanceof Error ? error.message : "Erro desconhecido",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(_: Request, { params }: RouteContext) {
+  try {
+    const session = getAdminSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { ok: false, error: "Não autorizado" },
+        { status: 401 }
+      );
+    }
+
+    const poiExists = await prisma.poi.findUnique({
+      where: { id: params.id },
+      select: { id: true },
+    });
+
+    if (!poiExists) {
+      return NextResponse.json(
+        { ok: false, error: "Ponto turístico não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    await prisma.poi.delete({
+      where: { id: params.id },
+    });
+
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ ok: false, error: "POI não encontrado" }, { status: 404 });
+  } catch (error) {
+    console.error("ERRO DELETE /api/pois/[id]:", error);
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Erro ao remover ponto turístico",
+        details: error instanceof Error ? error.message : "Erro desconhecido",
+      },
+      { status: 500 }
+    );
   }
 }
