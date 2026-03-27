@@ -106,8 +106,9 @@ const Icons = {
 export default function TouristAppPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // --- STATES ---
   const [cameraOn, setCameraOn] = useState(false);
+  const [cameraErr, setCameraErr] = useState<string | null>(null);
+
   const [geo, setGeo] = useState<Geo | null>(null);
   const [geoErr, setGeoErr] = useState<string | null>(null);
 
@@ -126,7 +127,6 @@ export default function TouristAppPage() {
   const compassEnabledRef = useRef(false);
   const compassHandlerRef = useRef<((ev: DeviceOrientationEvent) => void) | null>(null);
 
-  // AJUSTE PRINCIPAL: agora busca pontos em até 500m
   const radiusMeters = 500;
 
   // --- 1. LOAD POIS ---
@@ -136,7 +136,6 @@ export default function TouristAppPage() {
     async function load() {
       try {
         setLoadingPois(true);
-
         const r = await fetch("/api/pois", { cache: "no-store" });
         const data = await r.json().catch(() => null);
 
@@ -164,7 +163,7 @@ export default function TouristAppPage() {
   // --- 2. GEOLOCATION ---
   useEffect(() => {
     if (!("geolocation" in navigator)) {
-      setGeoErr("GPS Off");
+      setGeoErr("GPS indisponível");
       return;
     }
 
@@ -177,7 +176,7 @@ export default function TouristAppPage() {
         });
         setGeoErr(null);
       },
-      () => setGeoErr("Erro GPS"),
+      () => setGeoErr("Erro ao obter GPS"),
       {
         enableHighAccuracy: true,
         maximumAge: 2000,
@@ -191,20 +190,52 @@ export default function TouristAppPage() {
   // --- 3. CAMERA CONTROL ---
   async function startCamera() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
-        audio: false,
-      });
+      setCameraErr(null);
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setCameraErr("Câmera não suportada neste navegador");
+        return;
+      }
+
+      let stream: MediaStream | null = null;
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { exact: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
+      } catch {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "environment",
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
+      }
+
+      if (!stream) {
+        setCameraErr("Não foi possível iniciar a câmera");
+        return;
+      }
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        videoRef.current.setAttribute("playsinline", "true");
+        videoRef.current.muted = true;
         await videoRef.current.play();
       }
 
       setCameraOn(true);
-    } catch {
+    } catch (error) {
+      console.error("Erro ao iniciar câmera:", error);
       setCameraOn(false);
-      alert("Erro Câmera");
+      setCameraErr("Permissão da câmera negada ou indisponível");
     }
   }
 
@@ -226,7 +257,6 @@ export default function TouristAppPage() {
     try {
       setHeadingErr(null);
 
-      // @ts-ignore
       const DeviceOrientationEventIOS = DeviceOrientationEvent as typeof DeviceOrientationEvent & {
         requestPermission?: () => Promise<"granted" | "denied">;
       };
@@ -243,7 +273,9 @@ export default function TouristAppPage() {
       }
 
       const handler = (ev: DeviceOrientationEvent) => {
-        const anyEv = ev as any;
+        const anyEv = ev as DeviceOrientationEvent & {
+          webkitCompassHeading?: number;
+        };
 
         if (typeof anyEv.webkitCompassHeading === "number") {
           setHeading(anyEv.webkitCompassHeading);
@@ -255,8 +287,8 @@ export default function TouristAppPage() {
       compassHandlerRef.current = handler;
       compassEnabledRef.current = true;
 
-      window.addEventListener("deviceorientationabsolute", handler as any, true);
-      window.addEventListener("deviceorientation", handler as any, true);
+      window.addEventListener("deviceorientationabsolute", handler as EventListener, true);
+      window.addEventListener("deviceorientation", handler as EventListener, true);
     } catch {
       setHeadingErr("Erro Bússola");
     }
@@ -266,13 +298,13 @@ export default function TouristAppPage() {
     return () => {
       const handler = compassHandlerRef.current;
       if (handler) {
-        window.removeEventListener("deviceorientationabsolute", handler as any, true);
-        window.removeEventListener("deviceorientation", handler as any, true);
+        window.removeEventListener("deviceorientationabsolute", handler as EventListener, true);
+        window.removeEventListener("deviceorientation", handler as EventListener, true);
       }
     };
   }, []);
 
-  // --- CALCULATIONS ---
+  // --- CÁLCULOS ---
   const nearby = useMemo(() => {
     if (!geo) return [];
 
@@ -284,17 +316,33 @@ export default function TouristAppPage() {
       .sort((a, b) => a.d - b.d);
   }, [geo, pois]);
 
-  const nearest = useMemo(() => {
-    return nearby[0]?.d <= radiusMeters ? nearby[0] : null;
-  }, [nearby]);
-
   const inRange = useMemo(() => {
     return nearby.filter((x) => x.d <= radiusMeters).slice(0, 3);
   }, [nearby]);
 
+  // LISTA COMPLETA DA CIDADE
+  // mostra todos os POIs cadastrados; se tiver GPS, ordena por distância
+  const cityPois = useMemo(() => {
+    if (!geo) {
+      return pois.map((poi) => ({ poi, d: null as number | null }));
+    }
+
+    return pois
+      .map((poi) => ({
+        poi,
+        d: haversineMeters(geo.lat, geo.lng, poi.lat, poi.lng),
+      }))
+      .sort((a, b) => {
+        if (a.d === null && b.d === null) return 0;
+        if (a.d === null) return 1;
+        if (b.d === null) return -1;
+        return a.d - b.d;
+      });
+  }, [pois, geo]);
+
   const effectiveTarget = useMemo(() => {
-    return targetPoi ?? inRange[0]?.poi ?? null;
-  }, [targetPoi, inRange]);
+    return targetPoi ?? inRange[0]?.poi ?? cityPois[0]?.poi ?? null;
+  }, [targetPoi, inRange, cityPois]);
 
   const bearingToTarget = useMemo(() => {
     if (!geo || !effectiveTarget) return null;
@@ -322,7 +370,6 @@ export default function TouristAppPage() {
 
   return (
     <main className="relative h-[100dvh] w-full bg-neutral-900 overflow-hidden text-white font-sans selection:bg-white/20">
-      {/* --- LAYER 1: Câmera / Background --- */}
       <div className="absolute inset-0 z-0">
         {!cameraOn && (
           <div className="flex h-full flex-col items-center justify-center p-6 text-center text-neutral-400">
@@ -330,6 +377,7 @@ export default function TouristAppPage() {
               <Icons.CameraOff />
             </div>
             <p>Toque na câmera abaixo para iniciar</p>
+            {cameraErr && <p className="mt-3 text-sm text-red-400">{cameraErr}</p>}
           </div>
         )}
 
@@ -340,13 +388,13 @@ export default function TouristAppPage() {
           }`}
           playsInline
           muted
+          autoPlay
         />
 
         <div className="absolute top-0 w-full h-32 bg-gradient-to-b from-black/80 to-transparent pointer-events-none" />
         <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
       </div>
 
-      {/* --- LAYER 1.5: HUD AR (Seta Centralizada) --- */}
       {cameraOn && heading !== null && relativeAngle !== null && effectiveTarget && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
           <div
@@ -364,13 +412,12 @@ export default function TouristAppPage() {
               Destino
             </span>
             <span className="text-xl font-black drop-shadow-md">
-              {formatMeters(distanceToTarget)}
+              {geo ? formatMeters(distanceToTarget) : "Sem GPS"}
             </span>
           </div>
         </div>
       )}
 
-      {/* --- LAYER 2: UI Header --- */}
       <div className="absolute top-0 left-0 right-0 z-30 flex items-start justify-between p-4 safe-area-top">
         <div className="flex flex-col">
           <h1 className="text-xl font-bold tracking-tight drop-shadow-md">Turismo AR</h1>
@@ -391,11 +438,10 @@ export default function TouristAppPage() {
             {geoErr && <span className="text-red-400">• {geoErr}</span>}
           </div>
 
-          {!loadingPois && geo && (
+          {!loadingPois && (
             <div className="mt-1 text-[11px] text-white/55">
-              {inRange.length > 0
-                ? `${inRange.length} ponto(s) em até ${radiusMeters}m`
-                : `Nenhum ponto em até ${radiusMeters}m`}
+              {pois.length} ponto(s) cadastrado(s)
+              {geo ? ` • ${inRange.length} em até ${radiusMeters}m` : ""}
             </div>
           )}
         </div>
@@ -408,7 +454,6 @@ export default function TouristAppPage() {
         </button>
       </div>
 
-      {/* --- LAYER 3: Cards Flutuantes (Informação) --- */}
       {cameraOn && geo && inRange.length > 0 && (
         <div className="absolute top-24 left-4 right-4 z-20 flex flex-col gap-3 pointer-events-none">
           {inRange.map(({ poi, d }) => {
@@ -425,9 +470,7 @@ export default function TouristAppPage() {
               >
                 <div className="flex items-center gap-4 p-4">
                   <div className="flex flex-col items-center justify-center min-w-[3.5rem] py-1 px-2 rounded-xl bg-white/10">
-                    <span className="text-xs font-bold">
-                      {formatMeters(d).replace("m", "")}
-                    </span>
+                    <span className="text-xs font-bold">{Math.round(d)}</span>
                     <span className="text-[10px] text-white/60">m</span>
                   </div>
 
@@ -453,9 +496,7 @@ export default function TouristAppPage() {
         </div>
       )}
 
-      {/* --- LAYER 4: Bottom Dock --- */}
       <div className="absolute bottom-0 left-0 right-0 z-30 pb-8 pt-20 px-6 bg-gradient-to-t from-black/90 to-transparent flex items-end justify-between pointer-events-none">
-        {/* Esquerda: Bússola */}
         <div className="pointer-events-auto flex flex-col items-center gap-1">
           <button
             onClick={enableCompass}
@@ -482,14 +523,17 @@ export default function TouristAppPage() {
           )}
         </div>
 
-        {/* Centro: Ações Principais */}
         <div className="pointer-events-auto flex flex-col items-center gap-4 transform translate-y-2">
-          {effectiveTarget && geo && (
+          {effectiveTarget && (
             <a
-              href={`https://www.google.com/maps/dir/?api=1&origin=${geo.lat},${geo.lng}&destination=${effectiveTarget.lat},${effectiveTarget.lng}&travelmode=walking`}
+              href={
+                geo
+                  ? `https://www.google.com/maps/dir/?api=1&origin=${geo.lat},${geo.lng}&destination=${effectiveTarget.lat},${effectiveTarget.lng}&travelmode=walking`
+                  : `https://www.google.com/maps/search/?api=1&query=${effectiveTarget.lat},${effectiveTarget.lng}`
+              }
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/60 border border-white/10 backdrop-blur-md text-xs font-semibold text-white/90 hover:bg-white/10 hover:border-white/30 transition-all animate-in fade-in slide-in-from-bottom-2"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/60 border border-white/10 backdrop-blur-md text-xs font-semibold text-white/90 hover:bg-white/10 hover:border-white/30 transition-all"
             >
               <Icons.Map />
               <span>Abrir no Maps</span>
@@ -508,7 +552,6 @@ export default function TouristAppPage() {
           </button>
         </div>
 
-        {/* Direita: Limpar Target */}
         <div className="pointer-events-auto flex justify-end w-12">
           {targetPoi && (
             <button
@@ -521,7 +564,6 @@ export default function TouristAppPage() {
         </div>
       </div>
 
-      {/* --- MODAL DETALHES --- */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="">
         {activePoi && (
           <div className="p-1">
@@ -560,7 +602,6 @@ export default function TouristAppPage() {
         )}
       </Modal>
 
-      {/* --- MODAL LISTA --- */}
       <Modal open={listOpen} onClose={() => setListOpen(false)} title="Explorar Pontos">
         <div className="space-y-2 mt-2">
           {loadingPois && (
@@ -569,19 +610,13 @@ export default function TouristAppPage() {
             </div>
           )}
 
-          {!loadingPois && !geo && (
+          {!loadingPois && !cityPois.length && (
             <div className="p-4 text-center text-white/40 text-sm">
-              Aguardando localização...
+              Nenhum ponto cadastrado.
             </div>
           )}
 
-          {!loadingPois && geo && !nearby.length && (
-            <div className="p-4 text-center text-white/40 text-sm">
-              Nenhum ponto encontrado.
-            </div>
-          )}
-
-          {nearby.map(({ poi, d }) => (
+          {cityPois.map(({ poi, d }) => (
             <button
               key={poi.id}
               onClick={() => {
@@ -591,13 +626,14 @@ export default function TouristAppPage() {
               className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-white/10 active:bg-white/20 transition-colors text-left border border-transparent hover:border-white/10"
             >
               <div className="h-10 w-10 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold text-white/50 shrink-0">
-                {formatMeters(d).replace("m", "")}
+                {d !== null ? (d < 1000 ? Math.round(d) : `${(d / 1000).toFixed(1)}k`) : "—"}
               </div>
 
-              <div>
-                <div className="font-semibold text-white">{poi.name}</div>
-                <div className="text-xs text-white/50">
+              <div className="min-w-0">
+                <div className="font-semibold text-white truncate">{poi.name}</div>
+                <div className="text-xs text-white/50 truncate">
                   {poi.category ?? "Ponto Turístico"}
+                  {d !== null ? ` • ${formatMeters(d)}` : ""}
                 </div>
               </div>
             </button>
