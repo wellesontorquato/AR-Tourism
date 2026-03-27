@@ -45,6 +45,14 @@ function bearingDegrees(lat1: number, lon1: number, lat2: number, lon2: number) 
   return (toDeg(θ) + 360) % 360;
 }
 
+function getGoogleMapsUrl(poi: PoiApi, geo: Geo | null) {
+  if (geo) {
+    return `https://www.google.com/maps/dir/?api=1&origin=${geo.lat},${geo.lng}&destination=${poi.lat},${poi.lng}&travelmode=walking`;
+  }
+
+  return `https://www.google.com/maps/search/?api=1&query=${poi.lat},${poi.lng}`;
+}
+
 // --- ÍCONES ---
 const Icons = {
   Camera: () => (
@@ -127,7 +135,7 @@ export default function TouristAppPage() {
   const compassEnabledRef = useRef(false);
   const compassHandlerRef = useRef<((ev: DeviceOrientationEvent) => void) | null>(null);
 
-  // 80m = somente para exibição AR/cards na tela
+  // 80m = somente para exibição na camada AR
   const radiusMeters = 80;
 
   // --- LOAD POIS ---
@@ -318,12 +326,10 @@ export default function TouristAppPage() {
       .sort((a, b) => a.d - b.d);
   }, [geo, pois]);
 
-  // somente pontos dentro de 80m para AR na tela
   const inRange = useMemo(() => {
     return nearby.filter((x) => x.d <= radiusMeters).slice(0, 3);
   }, [nearby]);
 
-  // todos os pontos cadastrados para o modal "Explorar Pontos"
   const cityPois = useMemo(() => {
     if (!geo) {
       return pois.map((poi) => ({ poi, d: null as number | null }));
@@ -367,6 +373,12 @@ export default function TouristAppPage() {
 
   function openDetails(p: PoiApi) {
     setActivePoi(p);
+    setModalOpen(true);
+  }
+
+  function openListPoiDetails(p: PoiApi) {
+    setActivePoi(p);
+    setListOpen(false);
     setModalOpen(true);
   }
 
@@ -526,11 +538,7 @@ export default function TouristAppPage() {
         <div className="pointer-events-auto flex flex-col items-center gap-4 transform translate-y-2">
           {effectiveTarget && (
             <a
-              href={
-                geo
-                  ? `https://www.google.com/maps/dir/?api=1&origin=${geo.lat},${geo.lng}&destination=${effectiveTarget.lat},${effectiveTarget.lng}&travelmode=walking`
-                  : `https://www.google.com/maps/search/?api=1&query=${effectiveTarget.lat},${effectiveTarget.lng}`
-              }
+              href={getGoogleMapsUrl(effectiveTarget, geo)}
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/60 border border-white/10 backdrop-blur-md text-xs font-semibold text-white/90 hover:bg-white/10 hover:border-white/30 transition-all"
@@ -577,22 +585,37 @@ export default function TouristAppPage() {
               <p className="text-sm text-white/60 mt-1 flex items-center gap-1">
                 <Icons.MapPin /> {activePoi.address || "Endereço não informado"}
               </p>
+
+              {geo && (
+                <p className="text-xs text-white/45 mt-2">
+                  Distância: {formatMeters(haversineMeters(geo.lat, geo.lng, activePoi.lat, activePoi.lng))}
+                </p>
+              )}
             </div>
 
             <div className="prose prose-invert prose-sm max-w-none text-white/80 leading-relaxed bg-white/5 p-4 rounded-xl border border-white/5">
               {modalHtml ? <div dangerouslySetInnerHTML={{ __html: modalHtml }} /> : "Sem descrição."}
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex flex-col gap-3">
               <button
                 onClick={() => {
                   setTargetPoi(activePoi);
                   setModalOpen(false);
                 }}
-                className="flex-1 py-3 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform"
+                className="w-full py-3 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform"
               >
                 Ir até aqui
               </button>
+
+              <a
+                href={getGoogleMapsUrl(activePoi, geo)}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-3 text-center bg-black/40 border border-white/15 text-white font-semibold rounded-xl hover:bg-white/10 transition-colors"
+              >
+                Abrir no Google Maps
+              </a>
             </div>
           </div>
         )}
@@ -615,23 +638,30 @@ export default function TouristAppPage() {
           {cityPois.map(({ poi, d }) => (
             <button
               key={poi.id}
-              onClick={() => {
-                setTargetPoi(poi);
-                setListOpen(false);
-              }}
+              onClick={() => openListPoiDetails(poi)}
               className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-white/10 active:bg-white/20 transition-colors text-left border border-transparent hover:border-white/10"
             >
               <div className="h-10 w-10 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold text-white/50 shrink-0">
                 {d !== null ? (d < 1000 ? Math.round(d) : `${(d / 1000).toFixed(1)}k`) : "—"}
               </div>
 
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="font-semibold text-white truncate">{poi.name}</div>
                 <div className="text-xs text-white/50 truncate">
                   {poi.category ?? "Ponto Turístico"}
                   {d !== null ? ` • ${formatMeters(d)}` : ""}
                 </div>
               </div>
+
+              <a
+                href={getGoogleMapsUrl(poi, geo)}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10"
+              >
+                Maps
+              </a>
             </button>
           ))}
         </div>
